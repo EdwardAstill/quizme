@@ -1,4 +1,5 @@
 import type { Quiz, Question, AnswerRecord } from "../types/quiz";
+import { Latex } from "./Latex";
 
 interface ScoreSummaryProps {
   quiz: Quiz;
@@ -47,10 +48,10 @@ export function ScoreSummary({
                   {!wasAnswered ? "\u2B55" : isCorrect ? "\u2705" : "\u274C"}
                 </span>
                 <div className="breakdown-item__content">
-                  <p className="breakdown-item__question">{q.question}</p>
+                  <p className="breakdown-item__question"><Latex>{q.question}</Latex></p>
                   {q.explanation && (
                     <p className="breakdown-item__explanation">
-                      {q.explanation}
+                      <Latex>{q.explanation}</Latex>
                     </p>
                   )}
                 </div>

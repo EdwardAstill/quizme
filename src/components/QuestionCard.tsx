@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Question, QuizItem, AnswerRecord } from "../types/quiz";
+import { Latex } from "./Latex";
 
 interface QuestionCardProps {
   item: QuizItem;
@@ -22,7 +23,7 @@ export function QuestionCard({
         <p className="question-card__counter">
           Question {index + 1} of {total}
         </p>
-        <h2 className="question-group__prompt">{item.question}</h2>
+        <h2 className="question-group__prompt"><Latex>{item.question}</Latex></h2>
         <div className="question-group__parts">
           {item.parts.map((part, i) => (
             <div key={part.id} className="question-group__part">
@@ -37,7 +38,7 @@ export function QuestionCard({
         </div>
         {item.explanation && allPartsAnswered(item.parts, answers) && (
           <div className="question-card__feedback question-card__feedback--info">
-            <p>{item.explanation}</p>
+            <p><Latex>{item.explanation}</Latex></p>
           </div>
         )}
       </div>
@@ -78,7 +79,7 @@ function SingleQuestion({
 
   return (
     <div className="question-card">
-      <h2 className="question-card__text">{question.question}</h2>
+      <h2 className="question-card__text"><Latex>{question.question}</Latex></h2>
 
       <div className="question-card__body">
         {question.type === "single" && (
@@ -86,7 +87,7 @@ function SingleQuestion({
             question={question}
             submitted={submitted}
             previousAnswer={answer?.userAnswer as string | undefined}
-            onSelect={(val) => onSubmit(question.id, val)}
+            onSubmit={(val) => onSubmit(question.id, val)}
           />
         )}
 
@@ -104,7 +105,7 @@ function SingleQuestion({
             question={question}
             submitted={submitted}
             previousAnswer={answer?.userAnswer as boolean | undefined}
-            onSelect={(val) => onSubmit(question.id, val)}
+            onSubmit={(val) => onSubmit(question.id, val)}
           />
         )}
 
@@ -123,10 +124,10 @@ function SingleQuestion({
           className={`question-card__feedback ${correct ? "question-card__feedback--correct" : "question-card__feedback--wrong"}`}
         >
           <strong>{correct ? "Correct!" : "Incorrect"}</strong>
-          {question.explanation && <p>{question.explanation}</p>}
+          {question.explanation && <p><Latex>{question.explanation}</Latex></p>}
           {question.type === "freetext" && !correct && (
             <p>
-              Expected: <strong>{question.answer}</strong>
+              Expected: <strong><Latex>{question.answer}</Latex></strong>
             </p>
           )}
         </div>
@@ -141,36 +142,55 @@ function SingleInput({
   question,
   submitted,
   previousAnswer,
-  onSelect,
+  onSubmit,
 }: {
   question: Question & { type: "single" };
   submitted: boolean;
   previousAnswer?: string;
-  onSelect: (v: string) => void;
+  onSubmit: (v: string) => void;
 }) {
+  const [selected, setSelected] = useState<string | null>(previousAnswer ?? null);
+
+  useEffect(() => {
+    setSelected(previousAnswer ?? null);
+  }, [previousAnswer]);
+
   return (
-    <ul className="options-list">
-      {question.options.map((opt) => {
-        let cls = "option";
-        if (submitted) {
-          if (opt === question.answer) cls += " option--correct";
-          else if (opt === previousAnswer) cls += " option--wrong";
-        } else if (opt === previousAnswer) {
-          cls += " option--selected";
-        }
-        return (
-          <li key={opt}>
-            <button
-              className={cls}
-              onClick={() => !submitted && onSelect(opt)}
-              disabled={submitted}
-            >
-              {opt}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+    <div>
+      <ul className="options-list">
+        {question.options.map((opt) => {
+          let cls = "option";
+          if (submitted) {
+            if (opt === question.answer) cls += " option--correct";
+            else if (opt === previousAnswer) cls += " option--wrong";
+          } else if (opt === selected) {
+            cls += " option--selected";
+          }
+          return (
+            <li key={opt}>
+              <button
+                className={cls}
+                onClick={() => !submitted && setSelected(opt)}
+                disabled={submitted}
+              >
+                <Latex>{opt}</Latex>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {!submitted && (
+        <div className="question-card__actions">
+          <button
+            className="btn btn--primary"
+            onClick={() => selected && onSubmit(selected)}
+            disabled={!selected}
+          >
+            Submit
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -213,7 +233,7 @@ function MultiInput({
             <li key={opt}>
               <button className={cls} onClick={() => toggle(opt)} disabled={submitted}>
                 <span className={`option__check ${selected.includes(opt) ? "option__check--on" : ""}`} />
-                {opt}
+                <Latex>{opt}</Latex>
               </button>
             </li>
           );
@@ -226,7 +246,7 @@ function MultiInput({
             onClick={() => onSubmit(selected)}
             disabled={selected.length === 0}
           >
-            Confirm selection
+            Submit
           </button>
         </div>
       )}
@@ -238,40 +258,59 @@ function TrueFalseInput({
   question,
   submitted,
   previousAnswer,
-  onSelect,
+  onSubmit,
 }: {
   question: Question & { type: "truefalse" };
   submitted: boolean;
   previousAnswer?: boolean;
-  onSelect: (v: boolean) => void;
+  onSubmit: (v: boolean) => void;
 }) {
+  const [selected, setSelected] = useState<boolean | null>(previousAnswer ?? null);
+
+  useEffect(() => {
+    setSelected(previousAnswer ?? null);
+  }, [previousAnswer]);
+
   const btnClass = (val: boolean) => {
     let cls = "btn btn--tf";
     if (submitted) {
       if (val === question.answer) cls += " btn--tf-correct";
       else if (val === previousAnswer) cls += " btn--tf-wrong";
-    } else if (val === previousAnswer) {
+    } else if (val === selected) {
       cls += " btn--tf-selected";
     }
     return cls;
   };
 
   return (
-    <div className="tf-buttons">
-      <button
-        className={btnClass(true)}
-        onClick={() => !submitted && onSelect(true)}
-        disabled={submitted}
-      >
-        True
-      </button>
-      <button
-        className={btnClass(false)}
-        onClick={() => !submitted && onSelect(false)}
-        disabled={submitted}
-      >
-        False
-      </button>
+    <div>
+      <div className="tf-buttons">
+        <button
+          className={btnClass(true)}
+          onClick={() => !submitted && setSelected(true)}
+          disabled={submitted}
+        >
+          True
+        </button>
+        <button
+          className={btnClass(false)}
+          onClick={() => !submitted && setSelected(false)}
+          disabled={submitted}
+        >
+          False
+        </button>
+      </div>
+      {!submitted && (
+        <div className="question-card__actions">
+          <button
+            className="btn btn--primary"
+            onClick={() => selected !== null && onSubmit(selected)}
+            disabled={selected === null}
+          >
+            Submit
+          </button>
+        </div>
+      )}
     </div>
   );
 }
