@@ -39,10 +39,21 @@ export type Question =
   | TrueFalseQuestion
   | FreeTextQuestion;
 
+/** A top-level quiz item — either a single question or a group of parts */
+export type QuizItem = Question | QuestionGroup;
+
+export interface QuestionGroup {
+  id: string;
+  type: "group";
+  question: string;
+  parts: Question[];
+  explanation?: string;
+}
+
 export interface Quiz {
   title: string;
   description?: string;
-  questions: Question[];
+  questions: QuizItem[];
 }
 
 export interface AnswerRecord {
@@ -50,3 +61,6 @@ export interface AnswerRecord {
   userAnswer: string | string[] | boolean;
   correct: boolean;
 }
+
+/** Status of a quiz item for the sidebar */
+export type ItemStatus = "unanswered" | "current" | "correct" | "wrong" | "partial";

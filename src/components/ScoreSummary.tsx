@@ -1,9 +1,11 @@
-import type { Quiz, AnswerRecord } from "../types/quiz";
+import type { Quiz, Question, AnswerRecord } from "../types/quiz";
 
 interface ScoreSummaryProps {
   quiz: Quiz;
-  answers: AnswerRecord[];
+  answers: Map<string, AnswerRecord>;
+  allQuestions: Question[];
   score: number;
+  total: number;
   onRestart: () => void;
   onNewQuiz: () => void;
 }
@@ -11,16 +13,17 @@ interface ScoreSummaryProps {
 export function ScoreSummary({
   quiz,
   answers,
+  allQuestions,
   score,
+  total,
   onRestart,
   onNewQuiz,
 }: ScoreSummaryProps) {
-  const total = quiz.questions.length;
-  const pct = Math.round((score / total) * 100);
+  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
 
   return (
     <div className="score-summary">
-      <h1>Results</h1>
+      <h1>{quiz.title}</h1>
       <div className="score-summary__hero">
         <span className="score-summary__pct">{pct}%</span>
         <span className="score-summary__fraction">
@@ -31,12 +34,17 @@ export function ScoreSummary({
       <div className="score-summary__breakdown">
         <h2>Question breakdown</h2>
         <ul>
-          {quiz.questions.map((q, i) => {
-            const record = answers[i];
+          {allQuestions.map((q) => {
+            const record = answers.get(q.id);
+            const isCorrect = record?.correct ?? false;
+            const wasAnswered = !!record;
             return (
-              <li key={q.id} className={`breakdown-item ${record?.correct ? "breakdown-item--correct" : "breakdown-item--wrong"}`}>
+              <li
+                key={q.id}
+                className={`breakdown-item ${wasAnswered ? (isCorrect ? "breakdown-item--correct" : "breakdown-item--wrong") : ""}`}
+              >
                 <span className="breakdown-item__icon">
-                  {record?.correct ? "\u2705" : "\u274C"}
+                  {!wasAnswered ? "\u2B55" : isCorrect ? "\u2705" : "\u274C"}
                 </span>
                 <div className="breakdown-item__content">
                   <p className="breakdown-item__question">{q.question}</p>
