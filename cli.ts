@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 
 import { readFileSync, existsSync } from "node:fs";
-import { resolve, join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve, join } from "node:path";
 import { createServer } from "node:http";
 import { program } from "commander";
 import open from "open";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 program
   .name("quizme")
