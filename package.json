@@ -13,7 +13,6 @@
   "scripts": {
     "dev": "bunx --bun vite",
     "build": "vite build && esbuild cli.ts --bundle --platform=node --format=esm --outfile=dist/cli.js --external:commander --external:open",
-    "prepare": "npm run build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
