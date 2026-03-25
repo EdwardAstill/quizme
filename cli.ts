@@ -39,6 +39,7 @@ program
     const port = parseInt(opts.port, 10);
 
     const server = await createServer({
+      root: rootDir,
       configFile: resolve(rootDir, "vite.config.ts"),
       server: { port },
       plugins: [
