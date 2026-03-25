@@ -4,16 +4,35 @@ A local quiz app that runs in your browser. Load any quiz from a JSON file, answ
 
 Supports four question types: single choice, multiple choice, true/false, and free text.
 
-## Quick Start
+## Install
+
+Requires [Bun](https://bun.sh).
 
 ```bash
+git clone https://github.com/EdwardAstill/quizme.git
+cd quizme
 bun install
+bun link
+```
 
+Make sure `~/.bun/bin` is on your PATH. If it isn't, add it once:
+
+```bash
+# fish
+fish_add_path ~/.bun/bin
+
+# bash/zsh
+echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
+```
+
+## Usage
+
+```bash
 # Start with a quiz file
-bun cli.ts ./examples/sample-quiz.json
+quizme ./examples/sample-quiz.json
 
-# Or start with a file picker
-bun run start
+# Or start with the file picker
+quizme
 ```
 
 Opens your browser automatically. Press `Ctrl+C` to stop.

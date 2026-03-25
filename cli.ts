@@ -1,9 +1,9 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-import { readFileSync, existsSync } from "node:fs";
-import { resolve, join } from "node:path";
-import { createServer } from "node:http";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { program } from "commander";
+import { createServer } from "vite";
 import open from "open";
 
 program
@@ -22,7 +22,7 @@ program
         process.exit(1);
       }
       try {
-        quizData = JSON.parse(readFileSync(quizPath, "utf-8"));
+        quizData = await Bun.file(quizPath).json();
       } catch {
         console.error("Error: could not parse JSON file.");
         process.exit(1);
@@ -30,74 +30,41 @@ program
     }
 
     const port = parseInt(opts.port, 10);
-    // When compiled, cli.js lives in dist/ alongside the static files
-    const clientDir = __dirname;
 
-    if (!existsSync(join(clientDir, "index.html"))) {
-      console.error("Error: built client not found. Run `bun run build` first.");
-      process.exit(1);
+    const server = await createServer({
+      configFile: resolve(import.meta.dir, "vite.config.ts"),
+      server: { port },
+      plugins: [
+        {
+          name: "quizme-api",
+          configureServer(server) {
+            server.middlewares.use("/api/quiz", (_req, res) => {
+              if (quizData) {
+                res.setHeader("Content-Type", "application/json");
+                res.end(JSON.stringify(quizData));
+              } else {
+                res.statusCode = 404;
+                res.end();
+              }
+            });
+          },
+        },
+      ],
+    });
+
+    await server.listen();
+    const url = `http://localhost:${port}`;
+    console.log(`\nQuizMe is running at ${url}`);
+    if (file) {
+      console.log(`Serving quiz: ${resolve(file)}`);
+    } else {
+      console.log("No quiz file provided — use the file picker in the browser.");
     }
+    console.log();
 
-    const mimeTypes: Record<string, string> = {
-      ".html": "text/html",
-      ".js": "application/javascript",
-      ".css": "text/css",
-      ".json": "application/json",
-      ".svg": "image/svg+xml",
-      ".png": "image/png",
-      ".ico": "image/x-icon",
-    };
-
-    const server = createServer((req, res) => {
-      const url = new URL(req.url ?? "/", `http://localhost:${port}`);
-
-      if (url.pathname === "/api/quiz") {
-        if (quizData) {
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify(quizData));
-        } else {
-          res.writeHead(404);
-          res.end();
-        }
-        return;
-      }
-
-      // Try serving static file
-      const filePath = join(clientDir, url.pathname === "/" ? "index.html" : url.pathname);
-      if (existsSync(filePath)) {
-        const ext = filePath.slice(filePath.lastIndexOf("."));
-        const contentType = mimeTypes[ext] ?? "application/octet-stream";
-        res.writeHead(200, { "Content-Type": contentType });
-        res.end(readFileSync(filePath));
-        return;
-      }
-
-      // SPA fallback
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(readFileSync(join(clientDir, "index.html")));
-    });
-
-    server.listen(port, () => {
-      const url = `http://localhost:${port}`;
-      console.log(`\nQuizMe is running at ${url}`);
-      if (file) {
-        console.log(`Serving quiz: ${resolve(file)}`);
-      } else {
-        console.log("No quiz file provided — use the file picker in the browser.");
-      }
-      console.log();
-
-      if (opts.open) {
-        open(url);
-      }
-    });
-
-    const shutdown = () => {
-      server.close();
-      process.exit(0);
-    };
-    process.on("SIGINT", shutdown);
-    process.on("SIGTERM", shutdown);
+    if (opts.open) {
+      open(url);
+    }
   });
 
 program.parse();

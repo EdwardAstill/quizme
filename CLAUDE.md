@@ -21,10 +21,11 @@ src/                    React app source
 cli.ts                  CLI entry point (Vite dev server + optional quiz injection)
 ```
 
-## Commands
+## Install & Commands
 
-- `bun run start` — start with file picker (no quiz pre-loaded)
-- `bun cli.ts <quiz.json>` — start with a quiz pre-loaded
+- `bun install && bun link` — install deps and make `quizme` available globally
+- `quizme <quiz.json>` — start with a quiz pre-loaded
+- `quizme` — start with file picker (no quiz pre-loaded)
 - `bun run typecheck` — run TypeScript type checking
 
 ## Quiz JSON Format

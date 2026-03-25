@@ -4,28 +4,25 @@
   "description": "A local quiz app — load a JSON quiz file, take it in your browser, get instant feedback.",
   "type": "module",
   "bin": {
-    "quizme": "bin/quizme.js"
+    "quizme": "cli.ts"
   },
-  "files": [
-    "bin/",
-    "dist/"
-  ],
   "scripts": {
     "dev": "bunx --bun vite",
-    "build": "vite build && node scripts/build-cli.js",
+    "build": "vite build",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "open": "^10.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.3.4"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "commander": "^12.1.0",
-    "esbuild": "^0.23.0",
-    "open": "^10.1.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "typescript": "^5.5.3",
-    "vite": "^5.3.4"
+    "typescript": "^5.5.3"
   }
 }
