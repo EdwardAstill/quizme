@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "dev": "bunx --bun vite",
-    "build": "bunx --bun vite build && bun build cli.ts --outdir dist --target node --format esm",
+    "build": "npx vite build && npx esbuild cli.ts --bundle --platform=node --format=esm --outfile=dist/cli.js --external:commander --external:open",
+    "prepare": "npm run build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "esbuild": "^0.23.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.5.3",
