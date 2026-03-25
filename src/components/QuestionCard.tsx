@@ -114,6 +114,7 @@ function SingleQuestion({
             question={question}
             submitted={submitted}
             previousAnswer={answer?.userAnswer as string | undefined}
+            placeholder={question.placeholder}
             onSubmit={(val) => onSubmit(question.id, val)}
           />
         )}
@@ -318,11 +319,13 @@ function TrueFalseInput({
 function FreeTextInput({
   submitted,
   previousAnswer,
+  placeholder,
   onSubmit,
 }: {
   question: Question & { type: "freetext" };
   submitted: boolean;
   previousAnswer?: string;
+  placeholder?: string;
   onSubmit: (v: string) => void;
 }) {
   const [value, setValue] = useState(previousAnswer ?? "");
@@ -342,7 +345,7 @@ function FreeTextInput({
       <input
         className="freetext-input"
         type="text"
-        placeholder="Type your answer..."
+        placeholder={placeholder || "Type your answer..."}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}

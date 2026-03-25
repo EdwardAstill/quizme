@@ -1,12 +1,16 @@
 import { useEffect } from "react";
 import { useQuiz } from "./hooks/useQuiz";
+import { useSettings } from "./hooks/useSettings";
 import { QuizLoader } from "./components/QuizLoader";
 import { QuestionCard } from "./components/QuestionCard";
 import { QuizNav } from "./components/QuizNav";
 import { ScoreSummary } from "./components/ScoreSummary";
+import { Settings } from "./components/Settings";
 import type { Quiz } from "./types/quiz";
 
 export default function App() {
+  const { settings, update: updateSettings } = useSettings();
+
   const {
     quiz,
     phase,
@@ -57,12 +61,23 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, [phase, nextQuestion, prevQuestion]);
 
+  const settingsBtn = (
+    <Settings settings={settings} onUpdate={updateSettings} />
+  );
+
   if (phase === "loading") {
-    return <QuizLoader onLoad={startQuiz} />;
+    return (
+      <>
+        {settingsBtn}
+        <QuizLoader onLoad={startQuiz} />
+      </>
+    );
   }
 
   if (phase === "finished" && quiz) {
     return (
+      <>
+      {settingsBtn}
       <ScoreSummary
         quiz={quiz}
         answers={answers}
@@ -72,21 +87,23 @@ export default function App() {
         onRestart={restart}
         onNewQuiz={reset}
       />
+      </>
     );
   }
 
   if (phase === "active" && currentItem && quiz) {
     return (
-      <div className="quiz-layout">
-        <QuizNav
+      <div className={`quiz-layout ${!settings.showSidebar ? "quiz-layout--no-sidebar" : ""}`}>
+        {settingsBtn}
+        {settings.showSidebar && <QuizNav
           quiz={quiz}
           currentIndex={currentIndex}
           statuses={itemStatuses}
           onNavigate={goTo}
           onFinish={finish}
           allAnswered={allAnswered}
-        />
-        <main className="quiz-main">
+        />}
+        <main className="quiz-main" style={{ maxWidth: `${settings.contentWidth}%` }}>
           <QuestionCard
             key={currentItem.id}
             item={currentItem}

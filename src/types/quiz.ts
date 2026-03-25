@@ -30,6 +30,7 @@ export interface FreeTextQuestion {
   question: string;
   answer: string;
   caseSensitive?: boolean;
+  placeholder?: string;
   explanation?: string;
 }
 
