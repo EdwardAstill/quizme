@@ -8,19 +8,16 @@
   },
   "files": [
     "bin/",
-    "cli.ts",
     "dist/"
   ],
   "scripts": {
     "dev": "bunx --bun vite",
-    "build": "bunx --bun vite build",
-    "prepublishOnly": "bun run build",
+    "build": "bunx --bun vite build && bun build cli.ts --outdir dist --target node --format esm",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "commander": "^12.1.0",
-    "open": "^10.1.0",
-    "tsx": "^4.16.2"
+    "open": "^10.1.0"
   },
   "devDependencies": {
     "@types/bun": "latest",

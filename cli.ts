@@ -33,9 +33,10 @@ program
     }
 
     const port = parseInt(opts.port, 10);
-    const clientDir = join(__dirname, "dist");
+    // When compiled, cli.js lives in dist/ alongside the static files
+    const clientDir = __dirname;
 
-    if (!existsSync(clientDir)) {
+    if (!existsSync(join(clientDir, "index.html"))) {
       console.error("Error: built client not found. Run `bun run build` first.");
       process.exit(1);
     }
