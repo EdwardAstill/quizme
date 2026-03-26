@@ -14,7 +14,15 @@ export function useQuiz() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, AnswerRecord>>(new Map());
   const [phase, setPhase] = useState<QuizPhase>("loading");
-  const [visitedIndices, setVisitedIndices] = useState<Set<number>>(new Set());
+  const [_visitedIndices, setVisitedIndices] = useState<Set<number>>(new Set());
+
+  /** Flatten sections into a sequential list of QuizItems for navigation */
+  const flatItems: QuizItem[] = useMemo(() => {
+    if (!quiz) return [];
+    return quiz.questions.flatMap((item) =>
+      item.type === "section" ? item.items : [item]
+    );
+  }, [quiz]);
 
   const startQuiz = useCallback((q: Quiz) => {
     setQuiz(q);
@@ -25,13 +33,13 @@ export function useQuiz() {
   }, []);
 
   const currentItem: QuizItem | null =
-    quiz && currentIndex < quiz.questions.length
-      ? quiz.questions[currentIndex]
+    flatItems.length > 0 && currentIndex < flatItems.length
+      ? flatItems[currentIndex]
       : null;
 
   const submitAnswer = useCallback(
     (questionId: string, userAnswer: string | string[] | boolean) => {
-      const question = findQuestion(quiz, questionId);
+      const question = findQuestion(flatItems, questionId);
       if (!question) return;
 
       const correct = checkAnswer(question, userAnswer);
@@ -43,23 +51,22 @@ export function useQuiz() {
         return next;
       });
     },
-    [quiz]
+    [flatItems]
   );
 
   const goTo = useCallback(
     (index: number) => {
-      if (!quiz || index < 0 || index >= quiz.questions.length) return;
+      if (index < 0 || index >= flatItems.length) return;
       setCurrentIndex(index);
       setVisitedIndices((prev) => new Set(prev).add(index));
     },
-    [quiz]
+    [flatItems]
   );
 
   const nextQuestion = useCallback(() => {
-    if (!quiz) return;
-    if (currentIndex + 1 >= quiz.questions.length) return;
+    if (currentIndex + 1 >= flatItems.length) return;
     goTo(currentIndex + 1);
-  }, [quiz, currentIndex, goTo]);
+  }, [flatItems, currentIndex, goTo]);
 
   const prevQuestion = useCallback(() => {
     if (currentIndex <= 0) return;
@@ -79,11 +86,10 @@ export function useQuiz() {
 
   /** Get all individual questions flattened from items (excludes info pages) */
   const allQuestions = useMemo(() => {
-    if (!quiz) return [];
-    return quiz.questions.flatMap((item) =>
+    return flatItems.flatMap((item) =>
       item.type === "group" ? item.parts : item.type === "info" ? [] : [item]
     );
-  }, [quiz]);
+  }, [flatItems]);
 
   const score = useMemo(() => {
     let correct = 0;
@@ -95,29 +101,24 @@ export function useQuiz() {
 
   const totalQuestions = allQuestions.length;
 
-  /** Get the status of each top-level quiz item */
+  /** Get the status of each flat item */
   const itemStatuses: ItemStatus[] = useMemo(() => {
-    if (!quiz) return [];
-    return quiz.questions.map((item, i) => {
+    return flatItems.map((item, i) => {
       if (i === currentIndex) return "current";
       if (item.type === "info") return "info";
       if (item.type === "group") {
         const partAnswers = item.parts.map((p) => answers.get(p.id));
         const answered = partAnswers.filter(Boolean);
-        if (answered.length === 0) {
-          return visitedIndices.has(i) ? "unanswered" : "unanswered";
-        }
+        if (answered.length === 0) return "unanswered";
         if (answered.length < item.parts.length) return "partial";
         return answered.every((a) => a!.correct) ? "correct" : "wrong";
       } else {
         const record = answers.get(item.id);
-        if (!record) {
-          return visitedIndices.has(i) ? "unanswered" : "unanswered";
-        }
+        if (!record) return "unanswered";
         return record.correct ? "correct" : "wrong";
       }
     });
-  }, [quiz, currentIndex, answers, visitedIndices]);
+  }, [flatItems, currentIndex, answers]);
 
   /** Check if all questions have been answered */
   const allAnswered = allQuestions.length > 0 && allQuestions.every((q) => answers.has(q.id));
@@ -127,6 +128,7 @@ export function useQuiz() {
     phase,
     currentIndex,
     currentItem,
+    flatItems,
     answers,
     score,
     totalQuestions,
@@ -144,9 +146,8 @@ export function useQuiz() {
   };
 }
 
-function findQuestion(quiz: Quiz | null, id: string): Question | undefined {
-  if (!quiz) return undefined;
-  for (const item of quiz.questions) {
+function findQuestion(flatItems: QuizItem[], id: string): Question | undefined {
+  for (const item of flatItems) {
     if (item.type === "group") {
       const found = item.parts.find((p) => p.id === id);
       if (found) return found;

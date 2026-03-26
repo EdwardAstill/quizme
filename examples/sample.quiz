@@ -3,69 +3,73 @@
   "description": "Practice exam for SAA-C03",
   "questions": [
     {
-      "id": "intro",
       "type": "info",
       "content": "# AWS Solutions Architect\n\nThis quiz covers key topics for the **SAA-C03** exam:\n\n- **S3** — storage classes, object limits, naming\n- **Serverless** — Lambda, DynamoDB\n- **IAM** — Identity and Access Management\n\nAWS pricing often uses formulas like:\n\n$$C = \\sum_{i=1}^{n} r_i \\cdot t_i \\cdot p_i$$\n\nwhere $r_i$ is the resource count, $t_i$ is the duration in hours, and $p_i$ is the per-unit price.\n\n> Tip: Read each question carefully before answering!"
     },
     {
-      "id": "q1",
-      "type": "single",
-      "question": "Which S3 storage class is cheapest for infrequent access?",
-      "options": ["S3 Standard", "S3 Glacier", "S3 Standard-IA", "S3 One Zone-IA"],
-      "answer": "S3 One Zone-IA",
-      "hint": "Think about which class trades redundancy for lower cost.",
-      "explanation": "One Zone-IA is cheapest but lacks multi-AZ redundancy."
-    },
-    {
-      "id": "q2",
-      "type": "multi",
-      "question": "Which services are serverless? (select all that apply)",
-      "options": ["EC2", "Lambda", "DynamoDB", "RDS"],
-      "answers": ["Lambda", "DynamoDB"],
-      "hint": "Serverless means you don't provision or manage servers.",
-      "explanation": "Lambda and DynamoDB require no server management."
-    },
-    {
-      "id": "q3",
-      "type": "group",
-      "question": "Answer the following questions about S3:",
-      "parts": [
+      "type": "section",
+      "title": "S3 Storage",
+      "items": [
         {
-          "id": "q3a",
-          "type": "truefalse",
-          "question": "S3 bucket names must be globally unique.",
-          "answer": true,
-          "explanation": "Bucket names share a global namespace across all AWS accounts."
-        },
-        {
-          "id": "q3b",
           "type": "single",
-          "question": "What is the maximum object size in S3?",
-          "options": ["1 TB", "5 TB", "10 TB", "Unlimited"],
-          "answer": "5 TB",
-          "explanation": "The maximum object size in S3 is 5 terabytes."
+          "question": "Which S3 storage class is cheapest for infrequent access?",
+          "options": ["S3 Standard", "S3 Glacier", "S3 Standard-IA", "S3 One Zone-IA"],
+          "answer": "S3 One Zone-IA",
+          "hint": "Think about which class trades redundancy for lower cost.",
+          "explanation": "One Zone-IA is cheapest but lacks multi-AZ redundancy."
         },
         {
-          "id": "q3c",
-          "type": "freetext",
-          "question": "What does S3 stand for?",
-          "answer": "Simple Storage Service",
-          "caseSensitive": false,
-          "placeholder": "Full name of the service...",
-          "explanation": "S3 = Simple Storage Service."
+          "type": "group",
+          "question": "Answer the following questions about S3:",
+          "parts": [
+            {
+              "type": "truefalse",
+              "question": "S3 bucket names must be globally unique.",
+              "answer": true,
+              "explanation": "Bucket names share a global namespace across all AWS accounts."
+            },
+            {
+              "type": "single",
+              "question": "What is the maximum object size in S3?",
+              "options": ["1 TB", "5 TB", "10 TB", "Unlimited"],
+              "answer": "5 TB",
+              "explanation": "The maximum object size in S3 is 5 terabytes."
+            },
+            {
+              "type": "freetext",
+              "question": "What does S3 stand for?",
+              "answer": "Simple Storage Service",
+              "caseSensitive": false,
+              "placeholder": "Full name of the service...",
+              "explanation": "S3 = Simple Storage Service."
+            }
+          ],
+          "explanation": "S3 is one of the foundational AWS services and a key topic on the SAA-C03 exam."
         }
-      ],
-      "explanation": "S3 is one of the foundational AWS services and a key topic on the SAA-C03 exam."
+      ]
     },
     {
-      "id": "q4",
-      "type": "freetext",
-      "question": "What does IAM stand for?",
-      "answer": "Identity and Access Management",
-      "hint": "It's three words: **I**___ **A**___ **M**___",
-      "caseSensitive": false,
-      "placeholder": "e.g. Identity and ...",
-      "explanation": "IAM controls who can do what in your AWS account."
+      "type": "section",
+      "title": "Serverless & IAM",
+      "items": [
+        {
+          "type": "multi",
+          "question": "Which services are serverless? (select all that apply)",
+          "options": ["EC2", "Lambda", "DynamoDB", "RDS"],
+          "answers": ["Lambda", "DynamoDB"],
+          "hint": "Serverless means you don't provision or manage servers.",
+          "explanation": "Lambda and DynamoDB require no server management."
+        },
+        {
+          "type": "freetext",
+          "question": "What does IAM stand for?",
+          "answer": "Identity and Access Management",
+          "hint": "It's three words: **I**___ **A**___ **M**___",
+          "caseSensitive": false,
+          "placeholder": "e.g. Identity and ...",
+          "explanation": "IAM controls who can do what in your AWS account."
+        }
+      ]
     }
   ]
 }

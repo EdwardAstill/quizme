@@ -233,6 +233,27 @@ body {
   border: 1.5px solid var(--unanswered);
 }
 
+/* ---------- Nav Sections ---------- */
+.quiz-nav__group {
+  list-style: none;
+}
+
+.quiz-nav__section-title {
+  padding: 0.6rem 1rem 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-top: 1px solid var(--border);
+  margin-top: 0.25rem;
+}
+
+.quiz-nav__group:first-child .quiz-nav__section-title {
+  border-top: none;
+  margin-top: 0;
+}
+
 /* ---------- Nav Footer ---------- */
 .quiz-nav__footer {
   padding: 1rem;

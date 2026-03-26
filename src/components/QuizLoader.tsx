@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import type { Quiz } from "../types/quiz";
+import { preprocessQuiz } from "../utils/preprocessQuiz";
 
 interface QuizLoaderProps {
   onLoad: (quiz: Quiz) => void;
@@ -16,11 +17,7 @@ export function QuizLoader({ onLoad }: QuizLoaderProps) {
       reader.onload = (e) => {
         try {
           const data = JSON.parse(e.target?.result as string);
-          if (!data.title || !Array.isArray(data.questions)) {
-            setError("Invalid quiz format: must have 'title' and 'questions'.");
-            return;
-          }
-          onLoad(data as Quiz);
+          onLoad(preprocessQuiz(data));
         } catch {
           setError("Failed to parse JSON. Check the file format.");
         }

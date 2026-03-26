@@ -1,8 +1,10 @@
 # Quiz JSON Format
 
-A quiz is a `.quiz` file (JSON format) with a `title`, optional `description`, and an array of `questions` (which can be questions, question groups, or info pages). The `.json` extension is also accepted.
+A quiz is a `.quiz` file (JSON format) with a `title`, optional `description`, and an array of `questions` (which can be questions, question groups, info pages, or sections). The `.json` extension is also accepted.
 
 All text fields (questions, options, explanations, info content) support **Markdown** with **LaTeX math** (`$...$` for inline, `$$...$$` for display).
+
+**IDs are optional.** If omitted, they are auto-generated at load time (e.g. `q1`, `q2`, `info-1`, `sec-1`). You can still provide explicit IDs if needed.
 
 ## Top-level structure
 
@@ -14,13 +16,14 @@ All text fields (questions, options, explanations, info content) support **Markd
 }
 ```
 
+The `questions` array can contain items directly (flat) or wrapped in sections.
+
 ## Item types
 
 ### Single choice
 
 ```json
 {
-  "id": "q1",
   "type": "single",
   "question": "What is $2 + 2$?",
   "options": ["3", "4", "5", "6"],
@@ -31,7 +34,7 @@ All text fields (questions, options, explanations, info content) support **Markd
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | yes | Unique identifier |
+| `id` | string | no | Unique identifier (auto-generated if omitted) |
 | `type` | `"single"` | yes | |
 | `question` | string | yes | Markdown text |
 | `options` | string[] | yes | List of choices (markdown) |
@@ -43,7 +46,6 @@ All text fields (questions, options, explanations, info content) support **Markd
 
 ```json
 {
-  "id": "q2",
   "type": "multi",
   "question": "Select all **prime** numbers:",
   "options": ["1", "2", "3", "4"],
@@ -54,7 +56,7 @@ All text fields (questions, options, explanations, info content) support **Markd
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | yes | Unique identifier |
+| `id` | string | no | Unique identifier (auto-generated if omitted) |
 | `type` | `"multi"` | yes | |
 | `question` | string | yes | Markdown text |
 | `options` | string[] | yes | List of choices (markdown) |
@@ -66,7 +68,6 @@ All text fields (questions, options, explanations, info content) support **Markd
 
 ```json
 {
-  "id": "q3",
   "type": "truefalse",
   "question": "The derivative of $e^x$ is $e^x$.",
   "answer": true,
@@ -76,7 +77,7 @@ All text fields (questions, options, explanations, info content) support **Markd
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | yes | Unique identifier |
+| `id` | string | no | Unique identifier (auto-generated if omitted) |
 | `type` | `"truefalse"` | yes | |
 | `question` | string | yes | Markdown text |
 | `answer` | boolean | yes | `true` or `false` |
@@ -87,7 +88,6 @@ All text fields (questions, options, explanations, info content) support **Markd
 
 ```json
 {
-  "id": "q4",
   "type": "freetext",
   "question": "What does **CPU** stand for?",
   "answer": "Central Processing Unit",
@@ -99,7 +99,7 @@ All text fields (questions, options, explanations, info content) support **Markd
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | yes | Unique identifier |
+| `id` | string | no | Unique identifier (auto-generated if omitted) |
 | `type` | `"freetext"` | yes | |
 | `question` | string | yes | Markdown text |
 | `answer` | string | yes | Expected answer (exact match after trimming) |
@@ -114,18 +114,15 @@ Groups multiple sub-questions under a shared prompt. Each part is scored individ
 
 ```json
 {
-  "id": "q5",
   "type": "group",
   "question": "Answer the following about **integration**:",
   "parts": [
     {
-      "id": "q5a",
       "type": "truefalse",
       "question": "$\\int x\\,dx = \\frac{x^2}{2} + C$",
       "answer": true
     },
     {
-      "id": "q5b",
       "type": "freetext",
       "question": "What is $\\int 1\\,dx$?",
       "answer": "x + C"
@@ -137,12 +134,34 @@ Groups multiple sub-questions under a shared prompt. Each part is scored individ
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | yes | Unique identifier |
+| `id` | string | no | Unique identifier (auto-generated if omitted) |
 | `type` | `"group"` | yes | |
 | `question` | string | yes | Shared prompt (markdown) |
 | `parts` | Question[] | yes | Array of sub-questions (any question type) |
 | `hint` | string | no | Revealed on click before all parts are answered (markdown) |
 | `explanation` | string | no | Shown after all parts are answered |
+
+### Section
+
+Groups related items under a heading. Sections appear as labeled groups in the sidebar. Navigation remains flat — sections are purely organizational.
+
+```json
+{
+  "type": "section",
+  "title": "Calculus",
+  "items": [
+    { "type": "info", "content": "# Calculus\n\nThis section covers derivatives and integrals." },
+    { "type": "single", "question": "What is $\\frac{d}{dx} x^2$?", "options": ["$x$", "$2x$", "$x^2$"], "answer": "$2x$" }
+  ]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | no | Unique identifier (auto-generated if omitted) |
+| `type` | `"section"` | yes | |
+| `title` | string | yes | Section heading shown in sidebar |
+| `items` | QuizItem[] | yes | Array of questions, groups, or info pages |
 
 ### Info page
 
@@ -150,7 +169,6 @@ Displays markdown content without requiring an answer. Useful for instructions, 
 
 ```json
 {
-  "id": "intro",
   "type": "info",
   "content": "# Welcome\n\nThis section covers **linear algebra**.\n\nRecall that a matrix $A$ is invertible if $\\det(A) \\neq 0$.\n\n$$A^{-1} = \\frac{1}{\\det(A)} \\text{adj}(A)$$"
 }
@@ -158,7 +176,7 @@ Displays markdown content without requiring an answer. Useful for instructions, 
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | yes | Unique identifier |
+| `id` | string | no | Unique identifier (auto-generated if omitted) |
 | `type` | `"info"` | yes | |
 | `content` | string | yes | Full markdown content with optional math |
 

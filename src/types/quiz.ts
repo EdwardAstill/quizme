@@ -62,10 +62,19 @@ export interface QuestionGroup {
   explanation?: string;
 }
 
+export interface Section {
+  type: "section";
+  title: string;
+  id?: string;
+  items: QuizItem[];
+}
+
+export type TopLevelItem = QuizItem | Section;
+
 export interface Quiz {
   title: string;
   description?: string;
-  questions: QuizItem[];
+  questions: TopLevelItem[];
 }
 
 export interface AnswerRecord {

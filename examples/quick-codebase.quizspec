@@ -1,0 +1,11 @@
+# Minimal spec — quiz yourself on a codebase with defaults
+title: "QuizMe Codebase Review"
+
+sources:
+  - type: codebase
+    path: .
+
+parameters:
+  count: 10
+  difficulty: intermediate
+  teach: true

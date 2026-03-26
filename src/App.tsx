@@ -6,7 +6,7 @@ import { QuestionCard } from "./components/QuestionCard";
 import { QuizNav } from "./components/QuizNav";
 import { ScoreSummary } from "./components/ScoreSummary";
 import { Settings } from "./components/Settings";
-import type { Quiz } from "./types/quiz";
+import { preprocessQuiz } from "./utils/preprocessQuiz";
 
 export default function App() {
   const { settings, update: updateSettings } = useSettings();
@@ -16,6 +16,7 @@ export default function App() {
     phase,
     currentIndex,
     currentItem,
+    flatItems,
     answers,
     score,
     totalQuestions,
@@ -39,7 +40,7 @@ export default function App() {
         if (!r.ok) throw new Error("No CLI quiz");
         return r.json();
       })
-      .then((data: Quiz) => startQuiz(data))
+      .then((data) => startQuiz(preprocessQuiz(data)))
       .catch(() => {
         // Not served via CLI — user will pick a file
       });
@@ -108,7 +109,7 @@ export default function App() {
             key={currentItem.id}
             item={currentItem}
             index={currentIndex}
-            total={quiz.questions.length}
+            total={flatItems.length}
             answers={answers}
             onSubmit={submitAnswer}
           />
@@ -123,7 +124,7 @@ export default function App() {
             <button
               className="btn btn--secondary"
               onClick={nextQuestion}
-              disabled={currentIndex === quiz.questions.length - 1}
+              disabled={currentIndex === flatItems.length - 1}
             >
               Next
             </button>

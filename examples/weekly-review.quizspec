@@ -1,0 +1,22 @@
+# Batch mode example — one quiz per file in a folder
+title: "Weekly Review"
+description: "One quiz per lecture"
+
+sources:
+  - type: folder
+    path: ~/notes/week-5/
+    glob: "*.md"
+
+parameters:
+  count: 10
+  difficulty: intermediate
+  teach: true
+
+generate:
+  mode: per_file
+  output_dir: ./quizzes/week-5/
+  title_from: heading
+
+notes: |
+  Each quiz should cover just the material in that one file.
+  Keep questions focused — don't reference material from other lectures.

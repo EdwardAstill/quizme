@@ -1,0 +1,29 @@
+# Example quiz spec — generates a quiz from local notes, a web page, and a PDF
+title: "Physics Midterm Review"
+description: "Chapters 1-5: Classical Mechanics"
+
+sources:
+  - type: folder
+    path: ~/notes/physics/chapters-1-5/
+    glob: "*.md"
+  - type: url
+    url: https://openstax.org/books/university-physics-volume-1/pages/5-chapter-review
+  - type: pdf
+    path: ~/textbooks/university-physics.pdf
+    pages: "1-50"
+
+parameters:
+  count: 25
+  difficulty: mixed
+  types: [single, multi, truefalse, freetext, group]
+  teach: true
+  sections: true
+
+focus:
+  - "Newton's laws of motion"
+  - "Conservation of energy"
+  - "Projectile motion"
+  - "Free body diagrams"
+
+exclude:
+  - "Fluid dynamics"

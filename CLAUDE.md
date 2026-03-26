@@ -20,6 +20,7 @@ src/                    React app source
   hooks/useQuiz.ts      Quiz state machine (current index, answers, scoring)
   hooks/useSettings.ts  Settings with localStorage persistence
   types/quiz.ts         TypeScript interfaces for quiz schema
+  utils/preprocessQuiz.ts  Auto-generates IDs, flattens sections for validation
 cli.ts                  CLI entry point (Vite dev server + optional quiz injection)
 examples/sample.quiz    Example quiz file
 docs/                   Documentation (user guide, quiz format, architecture, skill)
@@ -35,7 +36,11 @@ docs/                   Documentation (user guide, quiz format, architecture, sk
 
 ## Quiz File Format
 
-Files use `.quiz` extension (JSON format, `.json` also accepted). Six item types: `single`, `multi`, `truefalse`, `freetext`, `group`, `info`. All text fields support Markdown with LaTeX math. See `docs/quiz-format.md` for full spec.
+Files use `.quiz` extension (JSON format, `.json` also accepted). Seven item types: `single`, `multi`, `truefalse`, `freetext`, `group`, `info`, `section`. Sections group related items under a heading in the sidebar. IDs are optional — auto-generated at load time if omitted. All text fields support Markdown with LaTeX math. See `docs/quiz-format.md` for full spec.
+
+## Quiz Spec Format
+
+`.quizspec` files (YAML) are recipes for quiz generation via the `/make-quiz` skill. They declare source material (folders, URLs, PDFs, codebases), parameters (count, difficulty, types, teach mode), focus/exclude topics, and free-form `notes` for additional guidance. The skill always generates a `.quizspec` first, then uses it to produce the `.quiz` file. See `docs/quizspec-format.md` for full spec and `examples/*.quizspec` for examples.
 
 ## Architecture Notes
 
