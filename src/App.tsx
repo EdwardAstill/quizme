@@ -1,12 +1,14 @@
 import { useEffect } from "react";
 import { useQuiz } from "./hooks/useQuiz";
 import { useSettings } from "./hooks/useSettings";
+import type { Quiz } from "./types/quiz";
 import { QuizLoader } from "./components/QuizLoader";
-import { QuestionCard } from "./components/QuestionCard";
+import { QuestionCard } from "./components/items/QuestionCard";
+import { GroupCard } from "./components/items/GroupCard";
+import { InfoPage } from "./components/items/InfoPage";
 import { QuizNav } from "./components/QuizNav";
 import { ScoreSummary } from "./components/ScoreSummary";
 import { Settings } from "./components/Settings";
-import { preprocessQuiz } from "./utils/preprocessQuiz";
 
 export default function App() {
   const { settings, update: updateSettings } = useSettings();
@@ -33,14 +35,14 @@ export default function App() {
     reset,
   } = useQuiz();
 
-  // When served via CLI, quiz data is available at /api/quiz
+  // When served via CLI, quiz data is already parsed and served as JSON
   useEffect(() => {
     fetch("/api/quiz")
       .then((r) => {
         if (!r.ok) throw new Error("No CLI quiz");
         return r.json();
       })
-      .then((data) => startQuiz(preprocessQuiz(data)))
+      .then((data) => startQuiz(data as Quiz))
       .catch(() => {
         // Not served via CLI — user will pick a file
       });
@@ -105,14 +107,30 @@ export default function App() {
           allAnswered={allAnswered}
         />}
         <main className="quiz-main" style={{ maxWidth: `${settings.contentWidth}%` }}>
-          <QuestionCard
-            key={currentItem.id}
-            item={currentItem}
-            index={currentIndex}
-            total={flatItems.length}
-            answers={answers}
-            onSubmit={submitAnswer}
-          />
+          {currentItem.type === "info" && (
+            <InfoPage content={currentItem.content} />
+          )}
+          {currentItem.type === "group" && (
+            <GroupCard
+              group={currentItem}
+              index={currentIndex}
+              total={flatItems.length}
+              answers={answers}
+              onSubmit={submitAnswer}
+            />
+          )}
+          {currentItem.type !== "info" && currentItem.type !== "group" && (
+            <div>
+              <p className="question-card__counter">
+                Question {currentIndex + 1} of {flatItems.length}
+              </p>
+              <QuestionCard
+                question={currentItem}
+                answer={answers.get(currentItem.id)}
+                onSubmit={submitAnswer}
+              />
+            </div>
+          )}
           <div className="quiz-main__nav">
             <button
               className="btn btn--secondary"

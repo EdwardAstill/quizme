@@ -5,13 +5,14 @@ import { resolve, join } from "node:path";
 import { program } from "commander";
 import { createServer } from "vite";
 import open from "open";
+import { parseQuiz } from "./src/parsers";
 
 const rootDir = import.meta.dir;
 
 program
   .name("quizme")
   .description("Launch a quiz in your browser")
-  .argument("[file]", "path to a .quiz or .json quiz file (optional — opens file picker if omitted)")
+  .argument("[file]", "path to a .quiz, .json, or .quiz.md quiz file (optional — opens file picker if omitted)")
   .option("-p, --port <number>", "port to serve on", "3000")
   .option("-t, --test", "run the built-in sample quiz")
   .option("--no-open", "don't auto-open the browser")
@@ -29,9 +30,10 @@ program
         process.exit(1);
       }
       try {
-        quizData = await Bun.file(quizPath).json();
-      } catch {
-        console.error("Error: could not parse JSON file.");
+        const content = await Bun.file(quizPath).text();
+        quizData = parseQuiz(content, quizPath);
+      } catch (err) {
+        console.error(`Error: ${err instanceof Error ? err.message : "could not parse quiz file."}`);
         process.exit(1);
       }
     }

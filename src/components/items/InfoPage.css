@@ -1,0 +1,7 @@
+.info-page__content > *:first-child {
+  margin-top: 0;
+}
+
+.info-page__content > *:last-child {
+  margin-bottom: 0;
+}

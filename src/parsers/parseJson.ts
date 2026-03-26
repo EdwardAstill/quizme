@@ -1,10 +1,13 @@
 import type { Quiz, TopLevelItem, QuizItem } from "../types/quiz";
 
-/**
- * Preprocesses raw quiz JSON: assigns IDs to items missing them
- * and validates basic structure. Returns a fully-typed Quiz.
- */
-export function preprocessQuiz(raw: any): Quiz {
+export function parseJson(content: string): Quiz {
+  let raw: any;
+  try {
+    raw = JSON.parse(content);
+  } catch {
+    throw new Error("Invalid JSON");
+  }
+
   if (!raw || typeof raw.title !== "string" || !Array.isArray(raw.questions)) {
     throw new Error("Invalid quiz: must have a title (string) and questions (array)");
   }
@@ -19,6 +22,28 @@ export function preprocessQuiz(raw: any): Quiz {
       console.warn(`Duplicate quiz ID: "${id}"`);
     }
     allIds.add(id);
+  }
+
+  function validateAnswerIndex(item: any) {
+    if (item.type === "single") {
+      if (typeof item.answer !== "number" || item.answer < 0 || item.answer >= item.options.length) {
+        throw new Error(
+          `Invalid answer index ${item.answer} for question "${item.question}" with ${item.options.length} options`
+        );
+      }
+    }
+    if (item.type === "multi") {
+      if (!Array.isArray(item.answers)) {
+        throw new Error(`Multi question "${item.question}" must have an answers array`);
+      }
+      for (const idx of item.answers) {
+        if (typeof idx !== "number" || idx < 0 || idx >= item.options.length) {
+          throw new Error(
+            `Invalid answer index ${idx} for question "${item.question}" with ${item.options.length} options`
+          );
+        }
+      }
+    }
   }
 
   function assignItemId(item: any): QuizItem {
@@ -38,6 +63,7 @@ export function preprocessQuiz(raw: any): Quiz {
         item.parts.forEach((part: any, i: number) => {
           if (!part.id) part.id = `q${groupNum}${String.fromCharCode(97 + i)}`;
           trackId(part.id);
+          validateAnswerIndex(part);
         });
       }
       return item;
@@ -47,6 +73,7 @@ export function preprocessQuiz(raw: any): Quiz {
     questionCounter++;
     if (!item.id) item.id = `q${questionCounter}`;
     trackId(item.id);
+    validateAnswerIndex(item);
     return item;
   }
 

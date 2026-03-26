@@ -6,6 +6,7 @@ import type {
   AnswerRecord,
   ItemStatus,
 } from "../types/quiz";
+import { checkAnswer } from "../utils/checkAnswer";
 
 export type QuizPhase = "loading" | "active" | "finished";
 
@@ -16,7 +17,6 @@ export function useQuiz() {
   const [phase, setPhase] = useState<QuizPhase>("loading");
   const [_visitedIndices, setVisitedIndices] = useState<Set<number>>(new Set());
 
-  /** Flatten sections into a sequential list of QuizItems for navigation */
   const flatItems: QuizItem[] = useMemo(() => {
     if (!quiz) return [];
     return quiz.questions.flatMap((item) =>
@@ -38,7 +38,7 @@ export function useQuiz() {
       : null;
 
   const submitAnswer = useCallback(
-    (questionId: string, userAnswer: string | string[] | boolean) => {
+    (questionId: string, userAnswer: number | number[] | boolean | string) => {
       const question = findQuestion(flatItems, questionId);
       if (!question) return;
 
@@ -84,7 +84,6 @@ export function useQuiz() {
     setPhase("active");
   }, []);
 
-  /** Get all individual questions flattened from items (excludes info pages) */
   const allQuestions = useMemo(() => {
     return flatItems.flatMap((item) =>
       item.type === "group" ? item.parts : item.type === "info" ? [] : [item]
@@ -101,7 +100,6 @@ export function useQuiz() {
 
   const totalQuestions = allQuestions.length;
 
-  /** Get the status of each flat item */
   const itemStatuses: ItemStatus[] = useMemo(() => {
     return flatItems.map((item, i) => {
       if (i === currentIndex) return "current";
@@ -120,7 +118,6 @@ export function useQuiz() {
     });
   }, [flatItems, currentIndex, answers]);
 
-  /** Check if all questions have been answered */
   const allAnswered = allQuestions.length > 0 && allQuestions.every((q) => answers.has(q.id));
 
   return {
@@ -156,35 +153,4 @@ function findQuestion(flatItems: QuizItem[], id: string): Question | undefined {
     }
   }
   return undefined;
-}
-
-export function checkAnswer(
-  question: Question,
-  userAnswer: string | string[] | boolean
-): boolean {
-  switch (question.type) {
-    case "single":
-      return question.answer === userAnswer;
-    case "multi": {
-      if (!Array.isArray(userAnswer)) return false;
-      const sorted = [...userAnswer].sort();
-      const expected = [...question.answers].sort();
-      return (
-        sorted.length === expected.length &&
-        sorted.every((v, i) => v === expected[i])
-      );
-    }
-    case "truefalse":
-      return question.answer === userAnswer;
-    case "freetext": {
-      if (typeof userAnswer !== "string") return false;
-      const a = question.caseSensitive
-        ? userAnswer.trim()
-        : userAnswer.trim().toLowerCase();
-      const b = question.caseSensitive
-        ? question.answer.trim()
-        : question.answer.trim().toLowerCase();
-      return a === b;
-    }
-  }
 }

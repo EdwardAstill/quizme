@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { Theme, FontSize, Settings as SettingsType } from "../hooks/useSettings";
+import "./Settings.css";
 
 interface SettingsProps {
   settings: SettingsType;

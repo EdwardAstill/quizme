@@ -1,5 +1,6 @@
 import type { Quiz, Question, AnswerRecord } from "../types/quiz";
-import { Markdown } from "./Markdown";
+import { Markdown } from "./ui/Markdown";
+import "./ScoreSummary.css";
 
 interface ScoreSummaryProps {
   quiz: Quiz;

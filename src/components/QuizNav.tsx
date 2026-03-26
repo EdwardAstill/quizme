@@ -1,4 +1,5 @@
 import type { Quiz, QuizItem, Section, ItemStatus } from "../types/quiz";
+import "./QuizNav.css";
 
 interface QuizNavProps {
   quiz: Quiz;

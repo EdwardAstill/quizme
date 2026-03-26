@@ -1,0 +1,34 @@
+.tf-buttons {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.btn--tf {
+  flex: 1;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.btn--tf:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-light);
+}
+
+.btn--tf-selected {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+}
+
+.btn--tf-correct {
+  border-color: var(--correct-dim);
+  background: var(--correct-bg);
+}
+
+.btn--tf-wrong {
+  border-color: var(--wrong-dim);
+  background: var(--wrong-bg);
+}

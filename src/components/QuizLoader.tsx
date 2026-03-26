@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import type { Quiz } from "../types/quiz";
-import { preprocessQuiz } from "../utils/preprocessQuiz";
+import { parseQuiz } from "../parsers";
+import "./QuizLoader.css";
 
 interface QuizLoaderProps {
   onLoad: (quiz: Quiz) => void;
@@ -16,10 +17,10 @@ export function QuizLoader({ onLoad }: QuizLoaderProps) {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const data = JSON.parse(e.target?.result as string);
-          onLoad(preprocessQuiz(data));
-        } catch {
-          setError("Failed to parse JSON. Check the file format.");
+          const content = e.target?.result as string;
+          onLoad(parseQuiz(content, file.name));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to parse quiz file.");
         }
       };
       reader.readAsText(file);
@@ -43,7 +44,7 @@ export function QuizLoader({ onLoad }: QuizLoaderProps) {
     <div className="quiz-loader">
       <h1>QuizMe</h1>
       <p className="quiz-loader__subtitle">
-        Drop a .quiz file or pick one to get started.
+        Drop a .quiz or .quiz.md file to get started.
       </p>
 
       <div
@@ -62,7 +63,7 @@ export function QuizLoader({ onLoad }: QuizLoaderProps) {
           Choose file
           <input
             type="file"
-            accept=".quiz,.json"
+            accept=".quiz,.json,.md"
             onChange={handleFile}
             hidden
           />

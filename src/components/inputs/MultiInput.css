@@ -1,0 +1,13 @@
+.option__check {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid var(--border-light);
+  flex-shrink: 0;
+  transition: all 0.12s;
+}
+
+.option__check--on {
+  background: var(--primary);
+  border-color: var(--primary);
+}

@@ -3,7 +3,7 @@ export interface SingleChoiceQuestion {
   type: "single";
   question: string;
   options: string[];
-  answer: string;
+  answer: number;
   hint?: string;
   explanation?: string;
 }
@@ -13,7 +13,7 @@ export interface MultiChoiceQuestion {
   type: "multi";
   question: string;
   options: string[];
-  answers: string[];
+  answers: number[];
   hint?: string;
   explanation?: string;
 }
@@ -79,7 +79,7 @@ export interface Quiz {
 
 export interface AnswerRecord {
   questionId: string;
-  userAnswer: string | string[] | boolean;
+  userAnswer: number | number[] | boolean | string;
   correct: boolean;
 }
 

@@ -1,0 +1,47 @@
+.options-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--text);
+  text-align: left;
+  transition: all 0.12s ease;
+}
+
+.option:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-light);
+}
+
+.option:disabled {
+  cursor: default;
+}
+
+.option--selected {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+}
+
+.option--correct {
+  border-color: var(--correct-dim);
+  background: var(--correct-bg);
+}
+
+.option--wrong {
+  border-color: var(--wrong-dim);
+  background: var(--wrong-bg);
+}
