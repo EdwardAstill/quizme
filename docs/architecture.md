@@ -2,27 +2,48 @@
 
 ## Overview
 
-QuizMe is a local quiz app that runs entirely in the browser via a Vite dev server. The CLI starts the server and optionally injects quiz data; the React frontend handles all quiz logic and rendering.
+QuizMe has two interfaces: a TUI for managing quizzes and a web UI for taking them. Running `quizme` with no arguments opens the TUI; running `quizme <file>` launches the web UI directly.
 
 ```
 ┌─────────────────────────────────────────────┐
 │  CLI (cli.ts)                               │
-│  Commander parses args → Vite createServer() │
-│  Optional: serves quiz JSON at /api/quiz    │
-└──────────────┬──────────────────────────────┘
-               │ HTTP
-┌──────────────▼──────────────────────────────┐
-│  Browser (React SPA)                        │
+│  Commander parses args                      │
 │                                             │
-│  App.tsx                                    │
-│  ├── useSettings() → theme, font, width     │
-│  ├── useQuiz() → state machine              │
-│  │                                          │
-│  ├── QuizLoader (phase: loading)            │
-│  ├── QuizNav + QuestionCard (phase: active) │
-│  └── ScoreSummary (phase: finished)         │
-└─────────────────────────────────────────────┘
+│  No args → TUI (Ink)        File arg → Web  │
+│  ┌───────────────────┐  ┌─────────────────┐ │
+│  │ QuizList           │  │ Vite dev server │ │
+│  │ QuizspecCreator    │  │ /api/quiz JSON  │ │
+│  │ local ↔ config     │  └────────┬────────┘ │
+│  └───────────────────┘           │ HTTP      │
+└──────────────────────────────────┼──────────┘
+                        ┌──────────▼──────────┐
+                        │  Browser (React SPA) │
+                        │  App.tsx             │
+                        │  ├── useSettings()   │
+                        │  ├── useQuiz()       │
+                        │  ├── QuizLoader      │
+                        │  ├── QuestionCard    │
+                        │  └── ScoreSummary    │
+                        └──────────────────────┘
 ```
+
+### Quiz storage
+
+```
+.quizme/                          Local (CWD) — /make-quiz output
+  quiz-name.quiz.md
+  quiz-name.quizspec
+
+~/.config/quizme/                 Global config — permanent storage
+  notes--physics/                 Folder name = CWD path with -- separators
+    notes--physics.quizspec
+    midterm.quiz.md
+  projects--myapp/
+    projects--myapp.quizspec
+    api-review.quiz.md
+```
+
+The TUI toggles between local and config views (Tab), and can move quizzes between them (m). When all quizzes are moved out of `.quizme/`, the directory is auto-deleted.
 
 ## Tech stack
 
@@ -30,16 +51,18 @@ QuizMe is a local quiz app that runs entirely in the browser via a Vite dev serv
 |-------|-----------|
 | Runtime | Bun |
 | Frontend | React 18 + TypeScript |
+| TUI | Ink (React for terminals) + ink-text-input |
 | Bundler | Vite (dev server, no build step) |
 | CLI | Commander |
 | Markdown | react-markdown + remark-math + rehype-katex |
 | Math | KaTeX |
+| YAML | js-yaml (quizspec serialization) |
 | Styling | Vanilla CSS with custom properties |
 
 ## Project structure
 
 ```
-cli.ts                      CLI entry point
+cli.ts                      CLI entry point (TUI or web server)
 src/
   main.tsx                  React entry, imports global CSS
   App.tsx                   Root component, phase routing, keyboard nav
@@ -52,6 +75,20 @@ src/
     index.ts                Dispatches to JSON or Markdown parser by file extension
     parseJson.ts            JSON quiz parser (.quiz, .json) with ID generation and validation
     parseMarkdown.ts        Markdown quiz parser (.quiz.md) with frontmatter and heading-based syntax
+  tui/                      TUI management layer (Ink)
+    index.tsx               Entry point, renders Ink app
+    App.tsx                 Screen router (list vs creator)
+    components/
+      QuizList.tsx          Quiz list with local/config toggle, move, delete
+      QuizspecCreator.tsx   Interactive quizspec form builder
+      StatusBar.tsx         Bottom bar with keybinding hints
+      ConfirmDialog.tsx     y/n confirmation overlay
+    hooks/
+      useQuizFiles.ts       Scan, delete, move quiz files (local + config)
+      useClipboard.ts       Cross-platform clipboard write
+    utils/
+      configDir.ts          Config path resolution, CWD-to-folder mapping
+      quizspec.ts           Quizspec types and YAML serialization
   components/
     items/
       QuestionCard.tsx      Renders a single question with type-dispatched input
@@ -68,7 +105,7 @@ src/
     QuizLoader.tsx          File picker (drag-and-drop + file input)
     QuizNav.tsx             Sidebar navigation with status dots
     ScoreSummary.tsx        Results page with score breakdown
-    Settings.tsx            Settings panel (theme, font, width, sidebar)
+    Settings.tsx            Settings panel (theme, font, line spacing, width, sidebar)
   utils/
     checkAnswer.ts          Type-dispatched answer comparison logic
     idGenerator.ts          Shared ID generation for both parsers
@@ -136,7 +173,7 @@ All text passes through the `Markdown` component (react-markdown + remark-math +
 
 ### Settings
 
-`useSettings` manages theme, font size, content width, and sidebar visibility. Settings are persisted to localStorage under `quizme-settings`. Theme and font size are applied as attributes/styles on `document.documentElement`; content width and sidebar are applied via inline styles and CSS classes in `App.tsx`.
+`useSettings` manages theme, font size, line spacing, content width, and sidebar visibility. Settings are persisted to localStorage under `quizme-settings`. Theme, font size, and line spacing are applied as attributes/styles on `document.documentElement`; content width and sidebar are applied via inline styles and CSS classes in `App.tsx`.
 
 ## Styling
 

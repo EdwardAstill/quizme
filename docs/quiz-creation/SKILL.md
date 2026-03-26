@@ -7,14 +7,27 @@ description: >
   Trigger even on casual phrasings like "quiz me on X", "make a quiz about Y", "test me on this codebase",
   or "generate questions from this repo".
   This skill governs the full quiz generation workflow — source ingestion, question design, formatting, and output.
-  Always generates a .quizspec file first (as a reusable recipe) before producing the .quiz.md file.
+  A `.quizspec` YAML is accepted as optional input but is NOT required — the skill can work interactively
+  or from inline arguments without one. When no spec is provided, the skill generates its own spec as a guide.
 ---
 
 # Make Quiz
 
-Generate a `.quiz.md` file for the QuizMe app. **Every run produces a `.quizspec` first** — either by reading an existing one or generating one from the user's input. The spec is then used to generate the quiz.
+Generate a `.quiz.md` file for the QuizMe app. A `.quizspec` can optionally be provided as a recipe, but the skill works fine without one — it will ask the user or infer what's needed and generate a spec internally as a guide.
+
+**All output goes to `.quizme/` in the current working directory.** This is where the TUI (`quizme`) looks for local quizzes. The user can then use the TUI to move quizzes to `~/.config/quizme/` for permanent storage.
 
 **Always output `.quiz.md` (markdown format)** unless the user explicitly asks for JSON. Markdown is the recommended format — no escaping, no index arithmetic, and LaTeX works naturally.
+
+---
+
+## Output directory
+
+All generated files go into `.quizme/` in the current working directory:
+- `.quizme/<name>.quiz.md` — the generated quiz
+- `.quizme/<name>.quizspec` — the spec used to generate it (saved for reuse)
+
+Create the `.quizme/` directory if it doesn't exist. Tell the user they can run `quizme` to browse and manage their quizzes, or move them to `~/.config/quizme/` via the TUI.
 
 ---
 
@@ -25,9 +38,10 @@ Check what the user provided:
 | Input | Action |
 |-------|--------|
 | A `.quizspec` file path | Read it → go to [Phase 2: Ingest Sources](#phase-2-ingest-sources) |
-| Inline flags (`--source`, `--count`, etc.) | Build a spec from flags → write the `.quizspec` → go to Phase 2 |
-| A topic (e.g. "quiz me on React hooks") | Ask clarifying questions → write the `.quizspec` → go to Phase 2 |
-| Just `/make-quiz` with no args | Ask what to quiz on → write the `.quizspec` → go to Phase 2 |
+| A `.quizspec` YAML string (pasted inline) | Parse it → go to Phase 2 |
+| Inline flags (`--source`, `--count`, etc.) | Build a spec from flags → write to `.quizme/` → go to Phase 2 |
+| A topic (e.g. "quiz me on React hooks") | Ask clarifying questions → write spec to `.quizme/` → go to Phase 2 |
+| Just `/make-quiz` with no args | Ask what to quiz on → write spec to `.quizme/` → go to Phase 2 |
 
 ### Inline flag mapping
 
@@ -47,6 +61,8 @@ Check what the user provided:
 
 ## Phase 1: Generate the `.quizspec` (if none provided)
 
+A spec is NOT required — the user might just say "quiz me on React hooks" and that's enough. But you always produce a `.quizspec` file as a reusable recipe, even if you build it yourself from the conversation.
+
 Ask the user enough to fill in the spec. At minimum you need:
 
 1. **Source material** — ask:
@@ -65,7 +81,7 @@ Ask the user enough to fill in the spec. At minimum you need:
 
 4. **Notes** — ask if there are any special instructions (e.g. "explain things step by step", "focus on common exam pitfalls", "I'm weak on X")
 
-Then **write the `.quizspec` file** (YAML format) before proceeding. Default location: project root or alongside the source material. Tell the user where you saved it so they can reuse/tweak it later.
+Then **write the `.quizspec` file** to `.quizme/` in the current directory. Tell the user where you saved it so they can reuse/tweak it later, or hand it directly to a chatbot.
 
 ---
 
@@ -117,9 +133,10 @@ Check the spec's `generate` field to determine single vs. batch mode:
 
 ### Combined mode (default)
 
-1. Determine output path: spec's `output` field, or `<spec-name>.quiz.md` in the same directory
+1. Determine output path: spec's `output` field, or `.quizme/<spec-name>.quiz.md` in the current directory
 2. Validate the quiz (see [Validation Checklist](#validation-checklist))
-3. Write the `.quiz.md` file
+3. Write the `.quiz.md` file to `.quizme/`
+4. Tell the user: "Run `quizme` to browse your quizzes, or use [m] in the TUI to move them to your config."
 
 ### Batch mode (`per_file` or `per_source`)
 
@@ -359,8 +376,10 @@ Assistant: What material should I build the quiz from?
 
 User: This codebase, focus on API routes and database layer, advanced, ~20 questions, teach me.
   I always mix up middleware ordering vs route matching.
-Assistant: [Writes codebase-review.quizspec with the users preferences, then reads codebase, generates quiz]
-Assistant: Saved spec to codebase-review.quizspec — you can rerun or tweak it later.
+Assistant: [Writes .quizme/codebase-review.quizspec, then reads codebase, generates quiz]
+Assistant: Saved to .quizme/codebase-review.quiz.md (20 questions, 4 sections, teach mode).
+  Spec saved to .quizme/codebase-review.quizspec — hand it to a chatbot or rerun later.
+  Run `quizme` to browse and launch your quizzes.
 ```
 
 ### With an existing spec file
@@ -368,5 +387,20 @@ Assistant: Saved spec to codebase-review.quizspec — you can rerun or tweak it 
 ```
 User: /make-quiz physics-midterm.quizspec
 Assistant: [Reads spec, ingests sources, generates quiz]
-Assistant: Written to physics-midterm.quiz.md (25 questions, 5 sections, teach mode).
+Assistant: Written to .quizme/physics-midterm.quiz.md (25 questions, 5 sections, teach mode).
+  Run `quizme` to browse your quizzes, or use [m] in the TUI to move them to config.
+```
+
+### With a YAML pasted inline
+
+```
+User: /make-quiz
+  title: "React Hooks"
+  sources:
+    - type: codebase
+  parameters:
+    count: 10
+    difficulty: intermediate
+Assistant: [Parses inline YAML as spec, saves to .quizme/react-hooks.quizspec, generates quiz]
+Assistant: Written to .quizme/react-hooks.quiz.md (10 questions).
 ```

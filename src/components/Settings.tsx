@@ -112,6 +112,19 @@ export function Settings({ settings, onUpdate }: SettingsProps) {
           </div>
 
           <div className="settings__section">
+            <span className="settings__label">Line spacing — {settings.lineSpacing.toFixed(1)}</span>
+            <input
+              className="settings__range"
+              type="range"
+              min={1.0}
+              max={2.5}
+              step={0.1}
+              value={settings.lineSpacing}
+              onChange={(e) => onUpdate({ lineSpacing: Number(e.target.value) })}
+            />
+          </div>
+
+          <div className="settings__section">
             <label className="settings__toggle-row">
               <span className="settings__label">Show sidebar</span>
               <button

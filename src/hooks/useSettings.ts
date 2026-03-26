@@ -7,6 +7,7 @@ export interface Settings {
   fontSize: FontSize;
   showSidebar: boolean;
   contentWidth: number; // percentage 20–100
+  lineSpacing: number; // 1.0–2.5
 }
 
 const STORAGE_KEY = "quizme-settings";
@@ -16,6 +17,7 @@ const defaults: Settings = {
   fontSize: "medium",
   showSidebar: true,
   contentWidth: 80,
+  lineSpacing: 1.6,
 };
 
 function load(): Settings {
@@ -49,11 +51,12 @@ export function useSettings() {
     });
   }, []);
 
-  // Apply theme + font size to document
+  // Apply theme + font size + line spacing to document
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", settings.theme);
     document.documentElement.style.fontSize = fontSizeMap[settings.fontSize];
-  }, [settings.theme, settings.fontSize]);
+    document.documentElement.style.lineHeight = String(settings.lineSpacing);
+  }, [settings.theme, settings.fontSize, settings.lineSpacing]);
 
   return { settings, update };
 }
