@@ -77,7 +77,7 @@ program
       await launchTUI(async (quizPath: string) => {
         await startQuizServer(quizPath, { port: opts.port, open: opts.open });
       });
-      return;
+      process.exit(0);
     }
 
     await startQuizServer(file, { port: opts.port, open: opts.open });
