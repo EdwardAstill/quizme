@@ -46,7 +46,7 @@ export function QuizLoader({ onLoad }: QuizLoaderProps) {
     <div className="quiz-loader">
       <h1>QuizMe</h1>
       <p className="quiz-loader__subtitle">
-        Drop a quiz JSON file or pick one to get started.
+        Drop a .quiz file or pick one to get started.
       </p>
 
       <div
@@ -65,7 +65,7 @@ export function QuizLoader({ onLoad }: QuizLoaderProps) {
           Choose file
           <input
             type="file"
-            accept=".json"
+            accept=".quiz,.json"
             onChange={handleFile}
             hidden
           />

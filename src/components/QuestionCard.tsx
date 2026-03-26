@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Question, QuizItem, AnswerRecord } from "../types/quiz";
-import { Latex } from "./Latex";
+import { Markdown } from "./Markdown";
 
 interface QuestionCardProps {
   item: QuizItem;
@@ -17,13 +17,26 @@ export function QuestionCard({
   answers,
   onSubmit,
 }: QuestionCardProps) {
+  if (item.type === "info") {
+    return (
+      <div className="question-card info-page">
+        <div className="info-page__content">
+          <Markdown>{item.content}</Markdown>
+        </div>
+      </div>
+    );
+  }
+
   if (item.type === "group") {
     return (
       <div className="question-group">
         <p className="question-card__counter">
           Question {index + 1} of {total}
         </p>
-        <h2 className="question-group__prompt"><Latex>{item.question}</Latex></h2>
+        <div className="question-group__prompt"><Markdown>{item.question}</Markdown></div>
+        {item.hint && !allPartsAnswered(item.parts, answers) && (
+          <HintToggle hint={item.hint} />
+        )}
         <div className="question-group__parts">
           {item.parts.map((part, i) => (
             <div key={part.id} className="question-group__part">
@@ -38,7 +51,7 @@ export function QuestionCard({
         </div>
         {item.explanation && allPartsAnswered(item.parts, answers) && (
           <div className="question-card__feedback question-card__feedback--info">
-            <p><Latex>{item.explanation}</Latex></p>
+            <Markdown>{item.explanation}</Markdown>
           </div>
         )}
       </div>
@@ -63,6 +76,26 @@ function allPartsAnswered(parts: Question[], answers: Map<string, AnswerRecord>)
   return parts.every((p) => answers.has(p.id));
 }
 
+function HintToggle({ hint }: { hint: string }) {
+  const [revealed, setRevealed] = useState(false);
+  return (
+    <div className="question-card__hint-area">
+      {revealed ? (
+        <div className="question-card__hint">
+          <Markdown>{hint}</Markdown>
+        </div>
+      ) : (
+        <button
+          className="question-card__hint-btn"
+          onClick={() => setRevealed(true)}
+        >
+          Reveal hint
+        </button>
+      )}
+    </div>
+  );
+}
+
 /* ---------- Single question renderer ---------- */
 
 function SingleQuestion({
@@ -76,10 +109,28 @@ function SingleQuestion({
 }) {
   const submitted = !!answer;
   const correct = answer?.correct ?? null;
+  const [hintRevealed, setHintRevealed] = useState(false);
 
   return (
     <div className="question-card">
-      <h2 className="question-card__text"><Latex>{question.question}</Latex></h2>
+      <h2 className="question-card__text"><Markdown inline>{question.question}</Markdown></h2>
+
+      {question.hint && !submitted && (
+        <div className="question-card__hint-area">
+          {hintRevealed ? (
+            <div className="question-card__hint">
+              <Markdown>{question.hint}</Markdown>
+            </div>
+          ) : (
+            <button
+              className="question-card__hint-btn"
+              onClick={() => setHintRevealed(true)}
+            >
+              Reveal hint
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="question-card__body">
         {question.type === "single" && (
@@ -125,10 +176,10 @@ function SingleQuestion({
           className={`question-card__feedback ${correct ? "question-card__feedback--correct" : "question-card__feedback--wrong"}`}
         >
           <strong>{correct ? "Correct!" : "Incorrect"}</strong>
-          {question.explanation && <p><Latex>{question.explanation}</Latex></p>}
+          {question.explanation && <Markdown>{question.explanation}</Markdown>}
           {question.type === "freetext" && !correct && (
             <p>
-              Expected: <strong><Latex>{question.answer}</Latex></strong>
+              Expected: <strong><Markdown inline>{question.answer}</Markdown></strong>
             </p>
           )}
         </div>
@@ -174,7 +225,7 @@ function SingleInput({
                 onClick={() => !submitted && setSelected(opt)}
                 disabled={submitted}
               >
-                <Latex>{opt}</Latex>
+                <Markdown inline>{opt}</Markdown>
               </button>
             </li>
           );
@@ -234,7 +285,7 @@ function MultiInput({
             <li key={opt}>
               <button className={cls} onClick={() => toggle(opt)} disabled={submitted}>
                 <span className={`option__check ${selected.includes(opt) ? "option__check--on" : ""}`} />
-                <Latex>{opt}</Latex>
+                <Markdown inline>{opt}</Markdown>
               </button>
             </li>
           );

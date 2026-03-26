@@ -11,7 +11,7 @@ const rootDir = import.meta.dir;
 program
   .name("quizme")
   .description("Launch a quiz in your browser")
-  .argument("[file]", "path to a quiz JSON file (optional — opens file picker if omitted)")
+  .argument("[file]", "path to a .quiz or .json quiz file (optional — opens file picker if omitted)")
   .option("-p, --port <number>", "port to serve on", "3000")
   .option("-t, --test", "run the built-in sample quiz")
   .option("--no-open", "don't auto-open the browser")
@@ -19,7 +19,7 @@ program
     let quizData: unknown = null;
 
     if (opts.test) {
-      file = join(rootDir, "examples", "sample-quiz.json");
+      file = join(rootDir, "examples", "sample.quiz");
     }
 
     if (file) {

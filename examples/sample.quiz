@@ -3,11 +3,17 @@
   "description": "Practice exam for SAA-C03",
   "questions": [
     {
+      "id": "intro",
+      "type": "info",
+      "content": "# AWS Solutions Architect\n\nThis quiz covers key topics for the **SAA-C03** exam:\n\n- **S3** — storage classes, object limits, naming\n- **Serverless** — Lambda, DynamoDB\n- **IAM** — Identity and Access Management\n\nAWS pricing often uses formulas like:\n\n$$C = \\sum_{i=1}^{n} r_i \\cdot t_i \\cdot p_i$$\n\nwhere $r_i$ is the resource count, $t_i$ is the duration in hours, and $p_i$ is the per-unit price.\n\n> Tip: Read each question carefully before answering!"
+    },
+    {
       "id": "q1",
       "type": "single",
       "question": "Which S3 storage class is cheapest for infrequent access?",
       "options": ["S3 Standard", "S3 Glacier", "S3 Standard-IA", "S3 One Zone-IA"],
       "answer": "S3 One Zone-IA",
+      "hint": "Think about which class trades redundancy for lower cost.",
       "explanation": "One Zone-IA is cheapest but lacks multi-AZ redundancy."
     },
     {
@@ -16,6 +22,7 @@
       "question": "Which services are serverless? (select all that apply)",
       "options": ["EC2", "Lambda", "DynamoDB", "RDS"],
       "answers": ["Lambda", "DynamoDB"],
+      "hint": "Serverless means you don't provision or manage servers.",
       "explanation": "Lambda and DynamoDB require no server management."
     },
     {
@@ -55,6 +62,7 @@
       "type": "freetext",
       "question": "What does IAM stand for?",
       "answer": "Identity and Access Management",
+      "hint": "It's three words: **I**___ **A**___ **M**___",
       "caseSensitive": false,
       "placeholder": "e.g. Identity and ...",
       "explanation": "IAM controls who can do what in your AWS account."

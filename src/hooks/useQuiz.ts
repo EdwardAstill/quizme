@@ -77,11 +77,11 @@ export function useQuiz() {
     setPhase("active");
   }, []);
 
-  /** Get all individual questions flattened from items */
+  /** Get all individual questions flattened from items (excludes info pages) */
   const allQuestions = useMemo(() => {
     if (!quiz) return [];
     return quiz.questions.flatMap((item) =>
-      item.type === "group" ? item.parts : [item]
+      item.type === "group" ? item.parts : item.type === "info" ? [] : [item]
     );
   }, [quiz]);
 
@@ -100,6 +100,7 @@ export function useQuiz() {
     if (!quiz) return [];
     return quiz.questions.map((item, i) => {
       if (i === currentIndex) return "current";
+      if (item.type === "info") return "info";
       if (item.type === "group") {
         const partAnswers = item.parts.map((p) => answers.get(p.id));
         const answered = partAnswers.filter(Boolean);
@@ -149,7 +150,7 @@ function findQuestion(quiz: Quiz | null, id: string): Question | undefined {
     if (item.type === "group") {
       const found = item.parts.find((p) => p.id === id);
       if (found) return found;
-    } else if (item.id === id) {
+    } else if (item.type !== "info" && item.id === id) {
       return item;
     }
   }

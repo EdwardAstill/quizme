@@ -4,6 +4,7 @@ export interface SingleChoiceQuestion {
   question: string;
   options: string[];
   answer: string;
+  hint?: string;
   explanation?: string;
 }
 
@@ -13,6 +14,7 @@ export interface MultiChoiceQuestion {
   question: string;
   options: string[];
   answers: string[];
+  hint?: string;
   explanation?: string;
 }
 
@@ -21,6 +23,7 @@ export interface TrueFalseQuestion {
   type: "truefalse";
   question: string;
   answer: boolean;
+  hint?: string;
   explanation?: string;
 }
 
@@ -31,6 +34,7 @@ export interface FreeTextQuestion {
   answer: string;
   caseSensitive?: boolean;
   placeholder?: string;
+  hint?: string;
   explanation?: string;
 }
 
@@ -40,14 +44,21 @@ export type Question =
   | TrueFalseQuestion
   | FreeTextQuestion;
 
-/** A top-level quiz item — either a single question or a group of parts */
-export type QuizItem = Question | QuestionGroup;
+export interface InfoPage {
+  id: string;
+  type: "info";
+  content: string; // markdown
+}
+
+/** A top-level quiz item — a question, a group of parts, or an info page */
+export type QuizItem = Question | QuestionGroup | InfoPage;
 
 export interface QuestionGroup {
   id: string;
   type: "group";
   question: string;
   parts: Question[];
+  hint?: string;
   explanation?: string;
 }
 
@@ -64,4 +75,4 @@ export interface AnswerRecord {
 }
 
 /** Status of a quiz item for the sidebar */
-export type ItemStatus = "unanswered" | "current" | "correct" | "wrong" | "partial";
+export type ItemStatus = "unanswered" | "current" | "correct" | "wrong" | "partial" | "info";

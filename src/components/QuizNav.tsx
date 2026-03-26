@@ -30,7 +30,7 @@ export function QuizNav({
         {quiz.questions.map((item, i) => {
           const status = statuses[i];
           const isCurrent = i === currentIndex;
-          const label = item.type === "group" ? item.question : item.question;
+          const label = item.type === "info" ? "Info" : item.question;
           // Truncate long labels
           const shortLabel =
             label.length > 48 ? label.slice(0, 45) + "..." : label;
@@ -56,7 +56,7 @@ export function QuizNav({
           onClick={onFinish}
           disabled={!allAnswered}
         >
-          {allAnswered ? "Finish quiz" : `${statuses.filter((s) => s === "unanswered" || s === "current").length} remaining`}
+          {allAnswered ? "Finish quiz" : `${statuses.filter((s, i) => (s === "unanswered" || s === "current") && quiz.questions[i].type !== "info").length} remaining`}
         </button>
       </div>
     </nav>
