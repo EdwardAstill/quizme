@@ -23,7 +23,7 @@ Then run: `/make-quiz my-quiz.quizspec`
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `title` | string | yes | Quiz title (used in the generated `.quiz` file) |
+| `title` | string | yes | Quiz title (used in the generated `.quiz.md` file) |
 | `description` | string | no | Subtitle shown in the sidebar |
 | `sources` | Source[] | yes | Where to pull material from (at least one) |
 | `parameters` | Parameters | no | Quiz generation settings (defaults apply if omitted) |
@@ -31,7 +31,7 @@ Then run: `/make-quiz my-quiz.quizspec`
 | `exclude` | string[] | no | Topics to skip even if they appear in sources |
 | `notes` | string | no | Free-form instructions, context, or guidance for quiz generation (e.g. "focus on common exam pitfalls", "explain concepts as if teaching a beginner") |
 | `generate` | Generate | no | Controls single vs. batch quiz generation (default: one quiz from all sources combined) |
-| `output` | string | no | Output file path for single mode (default: `<spec-name>.quiz` in same directory). Ignored in batch modes — see [Batch Generation](#batch-generation) |
+| `output` | string | no | Output file path for single mode (default: `<spec-name>.quiz.md` in same directory). Ignored in batch modes — see [Batch Generation](#batch-generation) |
 
 ## Sources
 
@@ -237,17 +237,17 @@ Quiz files are named based on the source:
 
 | Source type | File name |
 |-------------|-----------|
-| File/folder file | `<filename-without-extension>.quiz` |
-| URL | `<last-path-segment>.quiz` |
-| PDF | `<pdf-name>-p<pages>.quiz` (or `<pdf-name>.quiz` if no page range) |
-| Codebase | `<directory-name>.quiz` |
+| File/folder file | `<filename-without-extension>.quiz.md` |
+| URL | `<last-path-segment>.quiz.md` |
+| PDF | `<pdf-name>-p<pages>.quiz.md` (or `<pdf-name>.quiz.md` if no page range) |
+| Codebase | `<directory-name>.quiz.md` |
 
 Examples:
 ```
-~/notes/chapter-1.md           → chapter-1.quiz
-~/notes/chapter-2.md           → chapter-2.quiz
-https://example.com/api-guide  → api-guide.quiz
-~/books/physics.pdf (p1-20)    → physics-p1-20.quiz
+~/notes/chapter-1.md           → chapter-1.quiz.md
+~/notes/chapter-2.md           → chapter-2.quiz.md
+https://example.com/api-guide  → api-guide.quiz.md
+~/books/physics.pdf (p1-20)    → physics-p1-20.quiz.md
 ```
 
 ### Full batch example
@@ -279,23 +279,23 @@ notes: |
 
 If `~/notes/week-5/` contains `lecture-9.md`, `lecture-10.md`, and `lab-notes.md`, this produces:
 ```
-./quizzes/week-5/lecture-9.quiz
-./quizzes/week-5/lecture-10.quiz
-./quizzes/week-5/lab-notes.quiz
+./quizzes/week-5/lecture-9.quiz.md
+./quizzes/week-5/lecture-10.quiz.md
+./quizzes/week-5/lab-notes.quiz.md
 ```
 
 ## Output
 
-By default (in `combined` mode), the generated `.quiz` file is written alongside the `.quizspec` file with the same base name:
+By default (in `combined` mode), the generated `.quiz.md` file is written alongside the `.quizspec` file with the same base name:
 
 ```
-physics-midterm.quizspec  →  physics-midterm.quiz
+physics-midterm.quizspec  →  physics-midterm.quiz.md
 ```
 
 Override with the `output` field:
 
 ```yaml
-output: ~/quizzes/physics-midterm.quiz
+output: ~/quizzes/physics-midterm.quiz.md
 ```
 
 ## Full example
@@ -337,7 +337,7 @@ notes: |
   Explanations should walk through the reasoning step by step.
   Prefer scenario-based questions over pure recall.
 
-output: physics-midterm.quiz
+output: physics-midterm.quiz.md
 ```
 
 ## Using with the make-quiz skill
@@ -360,7 +360,7 @@ The workflow is always:
 2. **Ingest all sources** — reads folders, fetches URLs, reads PDFs
 3. **Filter by focus/exclude** — narrow to relevant material
 4. **Generate questions** — following the parameter constraints and notes
-5. **Write the `.quiz` file** — validated and ready to run with `quizme`
+5. **Write the `.quiz.md` file** — validated and ready to run with `quizme`
 
 ## Tips
 

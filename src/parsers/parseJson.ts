@@ -1,4 +1,6 @@
 import type { Quiz, TopLevelItem, QuizItem } from "../types/quiz";
+import { IdGenerator } from "../utils/idGenerator";
+import { validateAnswerIndex } from "../utils/validateQuiz";
 
 export function parseJson(content: string): Quiz {
   let raw: any;
@@ -12,76 +14,33 @@ export function parseJson(content: string): Quiz {
     throw new Error("Invalid quiz: must have a title (string) and questions (array)");
   }
 
-  let questionCounter = 0;
-  let infoCounter = 0;
-  let sectionCounter = 0;
-  const allIds = new Set<string>();
-
-  function trackId(id: string) {
-    if (allIds.has(id)) {
-      console.warn(`Duplicate quiz ID: "${id}"`);
-    }
-    allIds.add(id);
-  }
-
-  function validateAnswerIndex(item: any) {
-    if (item.type === "single") {
-      if (typeof item.answer !== "number" || item.answer < 0 || item.answer >= item.options.length) {
-        throw new Error(
-          `Invalid answer index ${item.answer} for question "${item.question}" with ${item.options.length} options`
-        );
-      }
-    }
-    if (item.type === "multi") {
-      if (!Array.isArray(item.answers)) {
-        throw new Error(`Multi question "${item.question}" must have an answers array`);
-      }
-      for (const idx of item.answers) {
-        if (typeof idx !== "number" || idx < 0 || idx >= item.options.length) {
-          throw new Error(
-            `Invalid answer index ${idx} for question "${item.question}" with ${item.options.length} options`
-          );
-        }
-      }
-    }
-  }
+  const ids = new IdGenerator();
 
   function assignItemId(item: any): QuizItem {
     if (item.type === "info") {
-      infoCounter++;
-      if (!item.id) item.id = `info-${infoCounter}`;
-      trackId(item.id);
+      item.id = ids.nextInfoId(item.id);
       return item;
     }
 
     if (item.type === "group") {
-      questionCounter++;
-      const groupNum = questionCounter;
-      if (!item.id) item.id = `q${groupNum}`;
-      trackId(item.id);
+      item.id = ids.nextQuestionId(item.id);
+      const groupNum = ids.currentQuestionNum;
       if (Array.isArray(item.parts)) {
-        item.parts.forEach((part: any, i: number) => {
-          if (!part.id) part.id = `q${groupNum}${String.fromCharCode(97 + i)}`;
-          trackId(part.id);
-          validateAnswerIndex(part);
-        });
+        ids.assignGroupPartIds(item.parts, groupNum);
+        item.parts.forEach((part: any) => validateAnswerIndex(part));
       }
       return item;
     }
 
     // single, multi, truefalse, freetext
-    questionCounter++;
-    if (!item.id) item.id = `q${questionCounter}`;
-    trackId(item.id);
+    item.id = ids.nextQuestionId(item.id);
     validateAnswerIndex(item);
     return item;
   }
 
   const questions: TopLevelItem[] = raw.questions.map((item: any) => {
     if (item.type === "section") {
-      sectionCounter++;
-      if (!item.id) item.id = `sec-${sectionCounter}`;
-      trackId(item.id);
+      item.id = ids.nextSectionId(item.id);
       const items: QuizItem[] = (item.items || []).map((child: any) => assignItemId(child));
       return { ...item, items };
     }

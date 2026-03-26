@@ -20,7 +20,7 @@ program
     let quizData: unknown = null;
 
     if (opts.test) {
-      file = join(rootDir, "examples", "sample.quiz");
+      file = join(rootDir, "examples", "sample.quiz.md");
     }
 
     if (file) {

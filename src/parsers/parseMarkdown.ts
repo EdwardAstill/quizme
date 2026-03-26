@@ -11,6 +11,8 @@ import type {
   QuestionGroup,
   Section,
 } from "../types/quiz";
+import { IdGenerator } from "../utils/idGenerator";
+import { validateAnswerIndex } from "../utils/validateQuiz";
 
 type ItemType = "single" | "multi" | "truefalse" | "freetext" | "info" | "group";
 
@@ -30,24 +32,7 @@ export function parseMarkdown(content: string): Quiz {
   let currentSection: Section | null = null;
   let i = 0;
 
-  let questionCounter = 0;
-  let infoCounter = 0;
-  let sectionCounter = 0;
-
-  function nextQuestionId(): string {
-    questionCounter++;
-    return `q${questionCounter}`;
-  }
-
-  function nextInfoId(): string {
-    infoCounter++;
-    return `info-${infoCounter}`;
-  }
-
-  function nextSectionId(): string {
-    sectionCounter++;
-    return `sec-${sectionCounter}`;
-  }
+  const ids = new IdGenerator();
 
   function addItem(item: QuizItem) {
     if (currentSection) {
@@ -69,7 +54,7 @@ export function parseMarkdown(content: string): Quiz {
       currentSection = {
         type: "section",
         title,
-        id: nextSectionId(),
+        id: ids.nextSectionId(),
         items: [],
       };
       i++;
@@ -84,7 +69,7 @@ export function parseMarkdown(content: string): Quiz {
       i++;
 
       if (type === "group") {
-        const group = parseGroup(lines, i, headingText, nextQuestionId);
+        const group = parseGroup(lines, i, headingText);
         i = group.nextIndex;
         addItem(group.item);
       } else {
@@ -148,7 +133,7 @@ export function parseMarkdown(content: string): Quiz {
       const content = bodyContent || headingText;
       return {
         item: {
-          id: nextInfoId(),
+          id: ids.nextInfoId(),
           type: "info",
           content,
         } as InfoPage,
@@ -183,15 +168,11 @@ export function parseMarkdown(content: string): Quiz {
         continue;
       }
 
-      // True/false answer
+      // True/false answer: only store the value marked with *
       const tfMatch = l.match(/^(true|false)\s*\*?\s*$/i);
       if (tfMatch) {
-        const val = tfMatch[1].toLowerCase() === "true";
-        const isCorrect = l.includes("*");
-        if (isCorrect) {
-          trueFalseAnswer = val;
-        } else {
-          trueFalseAnswer = val;
+        if (l.includes("*")) {
+          trueFalseAnswer = tfMatch[1].toLowerCase() === "true";
         }
         i++;
         continue;
@@ -238,7 +219,7 @@ export function parseMarkdown(content: string): Quiz {
       ? `${headingText}\n\n${bodyContent}`
       : headingText;
 
-    const id = nextQuestionId();
+    const id = ids.nextQuestionId();
 
     let item: Question;
     switch (type) {
@@ -288,6 +269,7 @@ export function parseMarkdown(content: string): Quiz {
         throw new Error(`Unknown question type: ${type}`);
     }
 
+    validateAnswerIndex(item);
     return { item, nextIndex: i };
   }
 
@@ -295,10 +277,10 @@ export function parseMarkdown(content: string): Quiz {
     lines: string[],
     startIndex: number,
     headingText: string,
-    nextQuestionId: () => string
   ): { item: QuestionGroup; nextIndex: number } {
     let i = startIndex;
-    const groupId = nextQuestionId();
+    const groupId = ids.nextQuestionId();
+    const groupNum = ids.currentQuestionNum;
     const parts: Question[] = [];
     let hint: string | undefined;
     let explanation: string | undefined;
@@ -369,11 +351,7 @@ export function parseMarkdown(content: string): Quiz {
       ? `${headingText}\n\n${bodyContent}`
       : headingText;
 
-    // Fix part IDs to use group-style naming (q1a, q1b, ...)
-    const groupNum = groupId.replace("q", "");
-    parts.forEach((part, idx) => {
-      part.id = `q${groupNum}${String.fromCharCode(97 + idx)}`;
-    });
+    ids.assignGroupPartIds(parts, groupNum);
 
     return {
       item: {

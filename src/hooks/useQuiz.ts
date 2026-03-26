@@ -15,7 +15,6 @@ export function useQuiz() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, AnswerRecord>>(new Map());
   const [phase, setPhase] = useState<QuizPhase>("loading");
-  const [_visitedIndices, setVisitedIndices] = useState<Set<number>>(new Set());
 
   const flatItems: QuizItem[] = useMemo(() => {
     if (!quiz) return [];
@@ -28,7 +27,6 @@ export function useQuiz() {
     setQuiz(q);
     setCurrentIndex(0);
     setAnswers(new Map());
-    setVisitedIndices(new Set([0]));
     setPhase("active");
   }, []);
 
@@ -58,7 +56,6 @@ export function useQuiz() {
     (index: number) => {
       if (index < 0 || index >= flatItems.length) return;
       setCurrentIndex(index);
-      setVisitedIndices((prev) => new Set(prev).add(index));
     },
     [flatItems]
   );
@@ -80,7 +77,6 @@ export function useQuiz() {
   const restart = useCallback(() => {
     setCurrentIndex(0);
     setAnswers(new Map());
-    setVisitedIndices(new Set([0]));
     setPhase("active");
   }, []);
 

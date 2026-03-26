@@ -48,23 +48,40 @@ src/
   hooks/
     useQuiz.ts              Quiz state machine (navigation, scoring, answers)
     useSettings.ts          Settings with localStorage persistence
+  parsers/
+    index.ts                Dispatches to JSON or Markdown parser by file extension
+    parseJson.ts            JSON quiz parser (.quiz, .json) with ID generation and validation
+    parseMarkdown.ts        Markdown quiz parser (.quiz.md) with frontmatter and heading-based syntax
   components/
+    items/
+      QuestionCard.tsx      Renders a single question with type-dispatched input
+      GroupCard.tsx          Renders a question group (shared prompt + parts)
+      InfoPage.tsx          Renders info pages (markdown content, no scoring)
+    inputs/
+      SingleInput.tsx       Radio button input for single-choice questions
+      MultiInput.tsx        Checkbox input for multiple-choice questions
+      TrueFalseInput.tsx    True/false toggle input
+      FreeTextInput.tsx     Text input for free-text questions
+    ui/
+      Markdown.tsx          Markdown + math renderer (react-markdown + remark-math + rehype-katex)
+      HintToggle.tsx        Expandable hint display
     QuizLoader.tsx          File picker (drag-and-drop + file input)
-    QuestionCard.tsx        Renders questions, info pages, groups
     QuizNav.tsx             Sidebar navigation with status dots
     ScoreSummary.tsx        Results page with score breakdown
     Settings.tsx            Settings panel (theme, font, width, sidebar)
-    Markdown.tsx            Markdown + math renderer
-    Latex.tsx               Legacy LaTeX-only renderer (unused)
-    ProgressBar.tsx         Progress bar (currently hidden)
   utils/
-    preprocessQuiz.ts       Auto-generates IDs, flattens sections for validation
-  index.css                 All styles (themes, layout, components)
+    checkAnswer.ts          Type-dispatched answer comparison logic
+    idGenerator.ts          Shared ID generation for both parsers
+    validateQuiz.ts         Answer index validation for both parsers
+  index.css                 Global styles (themes, layout, CSS custom properties)
 examples/
-  sample.quiz               Example quiz file
+  sample.quiz               Example quiz file (JSON)
+  sample.quiz.md            Example quiz file (Markdown)
   *.quizspec                Quiz generation recipes (YAML)
 docs/                       Documentation
 ```
+
+Component CSS files are co-located alongside their components (e.g. `QuestionCard.css`, `SingleInput.css`). Global styles (themes, layout, custom properties) remain in `src/index.css`.
 
 ## Data flow
 
@@ -89,7 +106,6 @@ loading ──startQuiz()──► active ──finish()──► finished
 - `currentIndex` --- which item is shown
 - `answers` --- Map of questionId → AnswerRecord
 - `phase` --- loading | active | finished
-- `visitedIndices` --- tracks which items the user has seen
 
 **Derived:**
 - `allQuestions` --- flattened list of scorable questions (excludes info pages and group wrappers)
@@ -99,22 +115,22 @@ loading ──startQuiz()──► active ──finish()──► finished
 
 ### Answer checking
 
-Lives in `useQuiz.ts:checkAnswer()`:
+Lives in `utils/checkAnswer.ts`:
 
 | Type | Logic |
 |------|-------|
-| single | Exact string match |
-| multi | Sorted array equality |
+| single | Numeric index equality (`answer` is an index into `options`) |
+| multi | Sorted numeric index array equality (`answers` are indices into `options`) |
 | truefalse | Boolean equality |
 | freetext | Trimmed string match (case-insensitive by default) |
 
 ### Rendering pipeline
 
-`QuestionCard` dispatches on `item.type`:
+`App.tsx` dispatches on `currentItem.type`:
 
-- `"info"` → renders markdown content block
-- `"group"` → renders shared prompt + individual `SingleQuestion` for each part
-- question types → renders `SingleQuestion` which dispatches to `SingleInput`, `MultiInput`, `TrueFalseInput`, or `FreeTextInput`
+- `"info"` → `InfoPage` renders markdown content block
+- `"group"` → `GroupCard` renders shared prompt + individual `QuestionCard` for each part
+- question types → `QuestionCard` dispatches to `SingleInput`, `MultiInput`, `TrueFalseInput`, or `FreeTextInput`
 
 All text passes through the `Markdown` component (react-markdown + remark-math + rehype-katex).
 
@@ -124,7 +140,8 @@ All text passes through the `Markdown` component (react-markdown + remark-math +
 
 ## Styling
 
-- Single CSS file (`src/index.css`) with BEM-style naming
+- Global styles in `src/index.css`, component CSS co-located with components
+- BEM-style naming throughout
 - Four themes via `[data-theme]` attribute: `dark`, `light`, `midnight`, `forest`
 - CSS custom properties for all colors, radii, and fonts
 - Responsive breakpoint at 768px (sidebar collapses to bottom bar on mobile)

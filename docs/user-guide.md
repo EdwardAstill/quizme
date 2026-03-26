@@ -15,10 +15,10 @@ This makes the `quizme` command available globally.
 ### Start with a quiz file
 
 ```bash
-quizme path/to/quiz.quiz
+quizme path/to/quiz.quiz.md
 ```
 
-Opens your browser with the quiz loaded and ready to take.
+Opens your browser with the quiz loaded and ready to take. Both `.quiz.md` (Markdown) and `.quiz` (JSON) files are accepted.
 
 ### Start with the file picker
 
@@ -26,7 +26,7 @@ Opens your browser with the quiz loaded and ready to take.
 quizme
 ```
 
-Opens the app with a drag-and-drop file picker where you can load a .quiz file from your browser.
+Opens the app with a drag-and-drop file picker where you can load a quiz file from your browser.
 
 ### Run the built-in sample quiz
 

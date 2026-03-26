@@ -1,8 +1,6 @@
 # QuizMe
 
-A local quiz app that runs in your browser. Load any quiz from a `.quiz` file, answer questions with instant feedback, and get a score breakdown at the end. No accounts, no servers, no data leaves your machine.
-
-Supports seven item types: single choice, multiple choice, true/false, free text, question groups, info pages, and sections.
+A local quiz app that runs in your browser. Load a quiz file, answer questions with instant feedback, and get a score breakdown at the end. No accounts, no servers, no data leaves your machine.
 
 ## Install
 
@@ -28,80 +26,52 @@ echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
 ## Usage
 
 ```bash
-# Start with a quiz file
-quizme ./examples/sample.quiz
-
-# Run the built-in sample quiz
-quizme -t
-
-# Or start with the file picker
-quizme
+quizme path/to/quiz.quiz.md   # Start with a quiz file
+quizme -t                      # Run the built-in sample quiz
+quizme                         # Start with file picker
 ```
 
 Opens your browser automatically. Press `Ctrl+C` to stop.
 
-**Options:**
+See [`docs/user-guide.md`](docs/user-guide.md) for full usage details and CLI options.
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-p, --port <number>` | Port to serve on | `3000` |
-| `-t, --test` | Run the built-in sample quiz | — |
-| `--no-open` | Don't auto-open the browser | — |
+## Quiz Files
 
-## Quiz File Format
+QuizMe supports two formats: **Markdown** (`.quiz.md`, recommended) and **JSON** (`.quiz`). Seven item types: single choice, multiple choice, true/false, free text, question groups, info pages, and sections.
 
-Files use `.quiz` extension (JSON format, `.json` also accepted). IDs are optional — auto-generated at load time if omitted. All text fields support Markdown with LaTeX math.
+Example (`.quiz.md`):
 
-```json
-{
-  "title": "My Quiz",
-  "description": "Optional description",
-  "questions": [
-    {
-      "type": "single",
-      "question": "Which planet is closest to the Sun?",
-      "options": ["Venus", "Mercury", "Earth", "Mars"],
-      "answer": "Mercury",
-      "explanation": "Mercury orbits at ~58 million km from the Sun."
-    }
-  ]
-}
+```markdown
+---
+title: My Quiz
+---
+
+## [single] Which planet is closest to the Sun?
+- Venus
+- Mercury *
+- Earth
+- Mars
+> Mercury orbits at ~58 million km from the Sun.
 ```
 
-### Item Types
+See [`docs/quiz-format.md`](docs/quiz-format.md) for the full specification.
 
-**`single`** — Pick one answer from a list.
-**`multi`** — Select all correct answers (uses `answers` array instead of `answer`).
-**`truefalse`** — True or false (answer is a boolean).
-**`freetext`** — Type the answer. Case-insensitive by default.
-**`group`** — Groups multiple sub-questions under a shared prompt, each scored individually.
-**`info`** — Displays markdown content without requiring an answer (not scored).
-**`section`** — Groups related items under a heading in the sidebar.
+## Documentation
 
-See [`docs/quiz-format.md`](docs/quiz-format.md) for the full specification with examples of every type.
+- [**User Guide**](docs/user-guide.md) — CLI options, navigation, settings
+- [**Quiz Format**](docs/quiz-format.md) — Markdown and JSON format specs, quality checklist
+- [**Quiz Spec Format**](docs/quizspec-format.md) — `.quizspec` recipes for quiz generation
+- [**Architecture**](docs/architecture.md) — Technical architecture for contributors
 
 ## Development
 
 ```bash
-bun run typecheck    # Type check without emitting
-```
-
-### Project Structure
-
-```
-src/
-  components/        QuestionCard, QuizLoader, QuizNav, ScoreSummary, Settings, Markdown, ProgressBar
-  hooks/             useQuiz.ts (quiz state machine), useSettings.ts (settings persistence)
-  types/quiz.ts      TypeScript interfaces
-  utils/             preprocessQuiz.ts (ID generation, section flattening)
-cli.ts               CLI entry point
-examples/            Sample .quiz and .quizspec files
-docs/                User guide, quiz format spec, architecture
+bun run typecheck    # Type check (strict mode)
 ```
 
 ## How It Works
 
-The CLI starts a Vite dev server and opens your browser. If a quiz JSON file is provided as an argument, it's served at `/api/quiz` and the quiz loads automatically. If no file is given, the app shows a drag-and-drop file picker to load one from the browser.
+The CLI starts a Vite dev server and opens your browser. If a quiz file is provided, it's parsed and served at `/api/quiz`. If no file is given, the app shows a drag-and-drop file picker.
 
 ## License
 
