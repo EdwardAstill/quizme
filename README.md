@@ -7,10 +7,7 @@ A local quiz app that runs in your browser. Load a quiz file, answer questions w
 Requires [Bun](https://bun.sh).
 
 ```bash
-git clone https://github.com/EdwardAstill/quizme.git
-cd quizme
-bun install
-bun link
+bun install -g github:EdwardAstill/quizme
 ```
 
 Make sure `~/.bun/bin` is on your PATH. If it isn't, add it once:
@@ -21,6 +18,17 @@ fish_add_path ~/.bun/bin
 
 # bash/zsh
 echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
+```
+
+### Development
+
+To work on QuizMe itself:
+
+```bash
+git clone https://github.com/EdwardAstill/quizme.git
+cd quizme
+bun install
+bun link
 ```
 
 ## Usage
@@ -62,12 +70,6 @@ See [`docs/quiz-format.md`](docs/quiz-format.md) for the full specification.
 - [**Quiz Format**](docs/quiz-format.md) — Markdown and JSON format specs, quality checklist
 - [**Quiz Spec Format**](docs/quizspec-format.md) — `.quizspec` recipes for quiz generation
 - [**Architecture**](docs/architecture.md) — Technical architecture for contributors
-
-## Development
-
-```bash
-bun run typecheck    # Type check (strict mode)
-```
 
 ## How It Works
 
