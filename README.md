@@ -1,8 +1,8 @@
 # QuizMe
 
-A local quiz app that runs in your browser. Load any quiz from a JSON file, answer questions with instant feedback, and get a score breakdown at the end. No accounts, no servers, no data leaves your machine.
+A local quiz app that runs in your browser. Load any quiz from a `.quiz` file, answer questions with instant feedback, and get a score breakdown at the end. No accounts, no servers, no data leaves your machine.
 
-Supports four question types: single choice, multiple choice, true/false, and free text.
+Supports seven item types: single choice, multiple choice, true/false, free text, question groups, info pages, and sections.
 
 ## Install
 
@@ -29,7 +29,10 @@ echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
 
 ```bash
 # Start with a quiz file
-quizme ./examples/sample-quiz.json
+quizme ./examples/sample.quiz
+
+# Run the built-in sample quiz
+quizme -t
 
 # Or start with the file picker
 quizme
@@ -42,9 +45,12 @@ Opens your browser automatically. Press `Ctrl+C` to stop.
 | Flag | Description | Default |
 |------|-------------|---------|
 | `-p, --port <number>` | Port to serve on | `3000` |
+| `-t, --test` | Run the built-in sample quiz | — |
 | `--no-open` | Don't auto-open the browser | — |
 
-## Quiz JSON Format
+## Quiz File Format
+
+Files use `.quiz` extension (JSON format, `.json` also accepted). IDs are optional — auto-generated at load time if omitted. All text fields support Markdown with LaTeX math.
 
 ```json
 {
@@ -52,7 +58,6 @@ Opens your browser automatically. Press `Ctrl+C` to stop.
   "description": "Optional description",
   "questions": [
     {
-      "id": "q1",
       "type": "single",
       "question": "Which planet is closest to the Sun?",
       "options": ["Venus", "Mercury", "Earth", "Mars"],
@@ -63,58 +68,17 @@ Opens your browser automatically. Press `Ctrl+C` to stop.
 }
 ```
 
-### Question Types
+### Item Types
 
 **`single`** — Pick one answer from a list.
-
-```json
-{
-  "id": "q1",
-  "type": "single",
-  "question": "...",
-  "options": ["A", "B", "C", "D"],
-  "answer": "B",
-  "explanation": "Optional explanation shown after answering."
-}
-```
-
-**`multi`** — Select all correct answers.
-
-```json
-{
-  "id": "q2",
-  "type": "multi",
-  "question": "...",
-  "options": ["A", "B", "C", "D"],
-  "answers": ["B", "D"],
-  "explanation": "..."
-}
-```
-
-**`truefalse`** — True or false.
-
-```json
-{
-  "id": "q3",
-  "type": "truefalse",
-  "question": "The sky is blue.",
-  "answer": true,
-  "explanation": "..."
-}
-```
-
+**`multi`** — Select all correct answers (uses `answers` array instead of `answer`).
+**`truefalse`** — True or false (answer is a boolean).
 **`freetext`** — Type the answer. Case-insensitive by default.
+**`group`** — Groups multiple sub-questions under a shared prompt, each scored individually.
+**`info`** — Displays markdown content without requiring an answer (not scored).
+**`section`** — Groups related items under a heading in the sidebar.
 
-```json
-{
-  "id": "q4",
-  "type": "freetext",
-  "question": "What does HTML stand for?",
-  "answer": "HyperText Markup Language",
-  "caseSensitive": false,
-  "explanation": "..."
-}
-```
+See [`docs/quiz-format.md`](docs/quiz-format.md) for the full specification with examples of every type.
 
 ## Development
 
@@ -126,11 +90,13 @@ bun run typecheck    # Type check without emitting
 
 ```
 src/
-  components/        QuestionCard, QuizLoader, ProgressBar, ScoreSummary
-  hooks/useQuiz.ts   Quiz state machine
+  components/        QuestionCard, QuizLoader, QuizNav, ScoreSummary, Settings, Markdown, ProgressBar
+  hooks/             useQuiz.ts (quiz state machine), useSettings.ts (settings persistence)
   types/quiz.ts      TypeScript interfaces
+  utils/             preprocessQuiz.ts (ID generation, section flattening)
 cli.ts               CLI entry point
-examples/            Sample quiz files
+examples/            Sample .quiz and .quizspec files
+docs/                User guide, quiz format spec, architecture
 ```
 
 ## How It Works

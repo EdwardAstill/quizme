@@ -57,9 +57,12 @@ src/
     Markdown.tsx            Markdown + math renderer
     Latex.tsx               Legacy LaTeX-only renderer (unused)
     ProgressBar.tsx         Progress bar (currently hidden)
+  utils/
+    preprocessQuiz.ts       Auto-generates IDs, flattens sections for validation
   index.css                 All styles (themes, layout, components)
 examples/
-  sample.quiz          Example quiz file
+  sample.quiz               Example quiz file
+  *.quizspec                Quiz generation recipes (YAML)
 docs/                       Documentation
 ```
 
