@@ -20,11 +20,18 @@ const defaults: Settings = {
   lineSpacing: 1.6,
 };
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 function load(): Settings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaults;
-    return { ...defaults, ...JSON.parse(raw) };
+    const parsed = { ...defaults, ...JSON.parse(raw) };
+    parsed.contentWidth = clamp(parsed.contentWidth, 20, 100);
+    parsed.lineSpacing = clamp(parsed.lineSpacing, 1.0, 2.5);
+    return parsed;
   } catch {
     return defaults;
   }

@@ -6,7 +6,7 @@ export class IdGenerator {
 
   private trackId(id: string) {
     if (this.allIds.has(id)) {
-      console.warn(`Duplicate quiz ID: "${id}"`);
+      throw new Error(`Duplicate quiz ID: "${id}". Each question must have a unique ID.`);
     }
     this.allIds.add(id);
   }

@@ -224,12 +224,15 @@ export function parseMarkdown(content: string): Quiz {
     let item: Question;
     switch (type) {
       case "single":
+        if (correctIndices.length === 0) {
+          throw new Error(`No correct answer marked for single-choice question: "${headingText}". Mark the correct option with a trailing *`);
+        }
         item = {
           id,
           type: "single",
           question: questionText,
           options,
-          answer: correctIndices[0] ?? 0,
+          answer: correctIndices[0],
           hint,
           explanation,
         } as SingleChoiceQuestion;
@@ -246,21 +249,27 @@ export function parseMarkdown(content: string): Quiz {
         } as MultiChoiceQuestion;
         break;
       case "truefalse":
+        if (trueFalseAnswer === undefined) {
+          throw new Error(`No correct answer marked for true/false question: "${headingText}". Mark the correct value with a trailing *`);
+        }
         item = {
           id,
           type: "truefalse",
           question: questionText,
-          answer: trueFalseAnswer ?? true,
+          answer: trueFalseAnswer,
           hint,
           explanation,
         } as TrueFalseQuestion;
         break;
       case "freetext":
+        if (freetextAnswer === undefined) {
+          throw new Error(`No answer provided for freetext question: "${headingText}". Provide an answer with = answer`);
+        }
         item = {
           id,
           type: "freetext",
           question: questionText,
-          answer: freetextAnswer ?? "",
+          answer: freetextAnswer,
           hint,
           explanation,
         } as FreeTextQuestion;
