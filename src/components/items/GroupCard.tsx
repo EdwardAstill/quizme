@@ -1,4 +1,4 @@
-import type { QuestionGroup, Question, AnswerRecord } from "../../types/quiz";
+import type { QuestionGroup, Question, AnswerRecord, SubmitAnswer } from "../../types/quiz";
 import { Markdown } from "../ui/Markdown";
 import { HintToggle } from "../ui/HintToggle";
 import { QuestionCard } from "./QuestionCard";
@@ -9,7 +9,7 @@ interface GroupCardProps {
   index: number;
   total: number;
   answers: Map<string, AnswerRecord>;
-  onSubmit: (questionId: string, ans: number | number[] | boolean | string) => void;
+  onSubmit: SubmitAnswer;
 }
 
 function allPartsAnswered(parts: Question[], answers: Map<string, AnswerRecord>) {

@@ -85,3 +85,5 @@ export interface AnswerRecord {
 
 /** Status of a quiz item for the sidebar */
 export type ItemStatus = "unanswered" | "current" | "correct" | "wrong" | "partial" | "info";
+
+export type SubmitAnswer = (questionId: string, answer: number | number[] | boolean | string) => void;

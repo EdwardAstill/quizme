@@ -5,6 +5,7 @@ import type {
   Question,
   AnswerRecord,
   ItemStatus,
+  SubmitAnswer,
 } from "../types/quiz";
 import { checkAnswer } from "../utils/checkAnswer";
 
@@ -35,8 +36,8 @@ export function useQuiz() {
       ? flatItems[currentIndex]
       : null;
 
-  const submitAnswer = useCallback(
-    (questionId: string, userAnswer: number | number[] | boolean | string) => {
+  const submitAnswer: SubmitAnswer = useCallback(
+    (questionId, userAnswer) => {
       const question = findQuestion(flatItems, questionId);
       if (!question) return;
 

@@ -1,4 +1,4 @@
-import type { Question, AnswerRecord } from "../../types/quiz";
+import type { Question, AnswerRecord, SubmitAnswer } from "../../types/quiz";
 import { Markdown } from "../ui/Markdown";
 import { HintToggle } from "../ui/HintToggle";
 import { SingleInput } from "../inputs/SingleInput";
@@ -10,7 +10,7 @@ import "./QuestionCard.css";
 interface QuestionCardProps {
   question: Question;
   answer?: AnswerRecord;
-  onSubmit: (questionId: string, ans: number | number[] | boolean | string) => void;
+  onSubmit: SubmitAnswer;
 }
 
 export function QuestionCard({ question, answer, onSubmit }: QuestionCardProps) {
