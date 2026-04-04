@@ -64,7 +64,7 @@ true *
 | Free text answer | `= answer text` |
 | Hint | `?> hint text` |
 | Explanation | `> text` (multiline: each line starts with `> `) |
-| Local image | `:::filename.png` inside a `:::` body block — loads from `images/` folder next to the quiz file |
+| Local image | `:::filename.png` on its own line inside a `:::` body block — loads from `images/` folder next to the quiz file |
 
 ### Extended body blocks (`:::`)
 
@@ -91,11 +91,15 @@ The `:::` content is appended to the heading text. Code fences inside are handle
 
 Two ways to include images in quiz content:
 
-```markdown
-# Local image — place the file in images/ next to the quiz file
-:::diagram.png
+**Local image** (file in `images/` folder next to the quiz file):
 
-# Web image — standard markdown, fetched directly by the browser
+```markdown
+:::diagram.png
+```
+
+**Web image** (standard markdown, fetched directly by the browser):
+
+```markdown
 ![alt text](https://example.com/photo.png)
 ```
 
