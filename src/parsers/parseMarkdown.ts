@@ -21,8 +21,13 @@ interface ParsedFrontmatter {
   description?: string;
 }
 
+function replaceLocalImages(content: string): string {
+  return content.replace(/^:::(.+)$/gm, (_, filename) => `![${filename}](/quiz-images/${filename})`);
+}
+
 export function parseMarkdown(content: string): Quiz {
-  const { frontmatter, body } = extractFrontmatter(content);
+  const processed = replaceLocalImages(content);
+  const { frontmatter, body } = extractFrontmatter(processed);
   if (!frontmatter.title) {
     throw new Error("Quiz must have a title in frontmatter");
   }
