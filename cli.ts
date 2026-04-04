@@ -58,7 +58,7 @@ async function startQuizServer(file: string, opts: ServerOpts) {
 
           server.middlewares.use("/quiz-images", async (req, res) => {
             // req.url has the prefix stripped, e.g. "/diagram.png"
-            const filename = req.url?.replace(/^\//, "") ?? "";
+            const filename = (req.url?.replace(/^\//, "") ?? "").split("?")[0];
             if (!filename) {
               res.statusCode = 404;
               res.end();
