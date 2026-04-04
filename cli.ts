@@ -80,7 +80,7 @@ async function startQuizServer(file: string, opts: ServerOpts) {
               return;
             }
 
-            const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+            const ext = imagePath.split(".").pop()?.toLowerCase() ?? "";
             const contentType = MIME[ext];
             if (!contentType) {
               res.statusCode = 415;
