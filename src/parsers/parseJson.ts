@@ -38,7 +38,7 @@ export function parseJson(content: string): Quiz {
     return item;
   }
 
-  const questions: TopLevelItem[] = raw.questions.map((item: any) => {
+  const items: TopLevelItem[] = raw.questions.map((item: any) => {
     if (item.type === "section") {
       item.id = ids.nextSectionId(item.id);
       const items: QuizItem[] = (item.items || []).map((child: any) => assignItemId(child));
@@ -50,6 +50,6 @@ export function parseJson(content: string): Quiz {
   return {
     title: raw.title,
     description: raw.description,
-    questions,
+    items,
   };
 }

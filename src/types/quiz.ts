@@ -74,7 +74,7 @@ export type TopLevelItem = QuizItem | Section;
 export interface Quiz {
   title: string;
   description?: string;
-  questions: TopLevelItem[];
+  items: TopLevelItem[];
 }
 
 export interface AnswerRecord {

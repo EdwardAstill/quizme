@@ -98,7 +98,7 @@ export function parseMarkdown(content: string): Quiz {
   return {
     title: frontmatter.title,
     description: frontmatter.description,
-    questions: topLevelItems,
+    items: topLevelItems,
   };
 
   function parseItem(

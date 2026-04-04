@@ -14,7 +14,7 @@ title: Test
 :::
 `;
     const quiz = parseMarkdown(input);
-    const info = quiz.questions[0] as InfoPage;
+    const info = quiz.items[0] as InfoPage;
     expect(info.content).toBe("![diagram.png](/quiz-images/diagram.png)");
   });
 
@@ -31,7 +31,7 @@ title: Test
 - Option B
 `;
     const quiz = parseMarkdown(input);
-    const q = quiz.questions[0] as SingleChoiceQuestion;
+    const q = quiz.items[0] as SingleChoiceQuestion;
     expect(q.question).toContain("![circuit.png](/quiz-images/circuit.png)");
   });
 
@@ -49,8 +49,8 @@ Some body text only
 `;
     // Should parse without throwing — ::: delimiters are untouched
     const quiz = parseMarkdown(input);
-    expect(quiz.questions).toHaveLength(1);
-    const q = quiz.questions[0] as SingleChoiceQuestion;
+    expect(quiz.items).toHaveLength(1);
+    const q = quiz.items[0] as SingleChoiceQuestion;
     expect(q.question).toContain("Some body text only");
   });
 
@@ -65,7 +65,7 @@ title: Test
 :::
 `;
     const quiz = parseMarkdown(input);
-    const info = quiz.questions[0] as InfoPage;
+    const info = quiz.items[0] as InfoPage;
     expect(info.content).toContain("https://example.com/photo.png");
     expect(info.content).not.toContain("/quiz-images/");
   });
@@ -81,7 +81,7 @@ title: Test
 :::
 `;
     const quiz = parseMarkdown(input);
-    const info = quiz.questions[0] as InfoPage;
+    const info = quiz.items[0] as InfoPage;
     // Should produce a clean URL without trailing space
     expect(info.content).toBe("![diagram.png](/quiz-images/diagram.png)");
   });

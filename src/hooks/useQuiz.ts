@@ -18,7 +18,7 @@ export function useQuiz() {
 
   const flatItems: QuizItem[] = useMemo(() => {
     if (!quiz) return [];
-    return quiz.questions.flatMap((item) =>
+    return quiz.items.flatMap((item) =>
       item.type === "section" ? item.items : [item]
     );
   }, [quiz]);

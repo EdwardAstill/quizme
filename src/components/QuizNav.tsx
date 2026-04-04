@@ -16,7 +16,7 @@ type NavGroup = { section: Section | null; entries: NavEntry[] };
 function buildNavModel(quiz: Quiz): NavGroup[] {
   const groups: NavGroup[] = [];
   let flatIndex = 0;
-  for (const item of quiz.questions) {
+  for (const item of quiz.items) {
     if (item.type === "section") {
       const entries = item.items.map((child) => ({ item: child, flatIndex: flatIndex++ }));
       groups.push({ section: item, entries });
