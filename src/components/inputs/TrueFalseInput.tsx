@@ -24,7 +24,7 @@ export function TrueFalseInput({
   const btnClass = (val: boolean) => {
     let cls = "btn btn--tf";
     if (submitted) {
-      if (val === question.answer) cls += " btn--tf-correct";
+      if (val === question.correctAnswer) cls += " btn--tf-correct";
       else if (val === previousAnswer) cls += " btn--tf-wrong";
     } else if (val === selected) {
       cls += " btn--tf-selected";

@@ -3,7 +3,7 @@ export interface SingleChoiceQuestion {
   type: "single";
   question: string;
   options: string[];
-  answer: number;
+  correctAnswer: number;
   hint?: string;
   explanation?: string;
 }
@@ -13,7 +13,7 @@ export interface MultiChoiceQuestion {
   type: "multi";
   question: string;
   options: string[];
-  answers: number[];
+  correctAnswers: number[];
   hint?: string;
   explanation?: string;
 }
@@ -22,7 +22,7 @@ export interface TrueFalseQuestion {
   id: string;
   type: "truefalse";
   question: string;
-  answer: boolean;
+  correctAnswer: boolean;
   hint?: string;
   explanation?: string;
 }
@@ -31,7 +31,7 @@ export interface FreeTextQuestion {
   id: string;
   type: "freetext";
   question: string;
-  answer: string;
+  correctAnswer: string;
   caseSensitive?: boolean;
   placeholder?: string;
   hint?: string;

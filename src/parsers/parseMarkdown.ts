@@ -239,7 +239,7 @@ export function parseMarkdown(content: string): Quiz {
           type: "single",
           question: questionText,
           options,
-          answer: correctIndices[0],
+          correctAnswer: correctIndices[0],
           hint,
           explanation,
         } as SingleChoiceQuestion;
@@ -250,7 +250,7 @@ export function parseMarkdown(content: string): Quiz {
           type: "multi",
           question: questionText,
           options,
-          answers: correctIndices,
+          correctAnswers: correctIndices,
           hint,
           explanation,
         } as MultiChoiceQuestion;
@@ -263,7 +263,7 @@ export function parseMarkdown(content: string): Quiz {
           id,
           type: "truefalse",
           question: questionText,
-          answer: trueFalseAnswer,
+          correctAnswer: trueFalseAnswer,
           hint,
           explanation,
         } as TrueFalseQuestion;
@@ -276,7 +276,7 @@ export function parseMarkdown(content: string): Quiz {
           id,
           type: "freetext",
           question: questionText,
-          answer: freetextAnswer,
+          correctAnswer: freetextAnswer,
           hint,
           explanation,
         } as FreeTextQuestion;

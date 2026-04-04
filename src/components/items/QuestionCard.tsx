@@ -70,12 +70,12 @@ export function QuestionCard({ question, answer, onSubmit }: QuestionCardProps) 
           {question.explanation && <Markdown>{question.explanation}</Markdown>}
           {question.type === "freetext" && !correct && (
             <p>
-              Expected: <strong><Markdown inline>{question.answer}</Markdown></strong>
+              Expected: <strong><Markdown inline>{question.correctAnswer}</Markdown></strong>
             </p>
           )}
           {question.type === "single" && !correct && (
             <p>
-              Expected: <strong><Markdown inline>{question.options[question.answer]}</Markdown></strong>
+              Expected: <strong><Markdown inline>{question.options[question.correctAnswer]}</Markdown></strong>
             </p>
           )}
         </div>

@@ -27,13 +27,21 @@ export function parseJson(content: string): Quiz {
       const groupNum = ids.currentQuestionNum;
       if (Array.isArray(item.parts)) {
         ids.assignGroupPartIds(item.parts, groupNum);
-        item.parts.forEach((part: any) => validateAnswerIndex(part));
+        item.parts.forEach((part: any) => {
+          // Map external field names to internal TypeScript names
+          if ("answer" in part) { part.correctAnswer = part.answer; delete part.answer; }
+          if ("answers" in part) { part.correctAnswers = part.answers; delete part.answers; }
+          validateAnswerIndex(part);
+        });
       }
       return item;
     }
 
     // single, multi, truefalse, freetext
     item.id = ids.nextQuestionId(item.id);
+    // Map external field names to internal TypeScript names
+    if ("answer" in item) { item.correctAnswer = item.answer; delete item.answer; }
+    if ("answers" in item) { item.correctAnswers = item.answers; delete item.answers; }
     validateAnswerIndex(item);
     return item;
   }

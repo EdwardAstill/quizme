@@ -6,26 +6,26 @@ export function checkAnswer(
 ): boolean {
   switch (question.type) {
     case "single":
-      return question.answer === userAnswer;
+      return question.correctAnswer === userAnswer;
     case "multi": {
       if (!Array.isArray(userAnswer)) return false;
       const sorted = [...userAnswer].sort((a, b) => a - b);
-      const expected = [...question.answers].sort((a, b) => a - b);
+      const expected = [...question.correctAnswers].sort((a, b) => a - b);
       return (
         sorted.length === expected.length &&
         sorted.every((v, i) => v === expected[i])
       );
     }
     case "truefalse":
-      return question.answer === userAnswer;
+      return question.correctAnswer === userAnswer;
     case "freetext": {
       if (typeof userAnswer !== "string") return false;
       const a = question.caseSensitive
         ? userAnswer.trim()
         : userAnswer.trim().toLowerCase();
       const b = question.caseSensitive
-        ? question.answer.trim()
-        : question.answer.trim().toLowerCase();
+        ? question.correctAnswer.trim()
+        : question.correctAnswer.trim().toLowerCase();
       return a === b;
     }
   }

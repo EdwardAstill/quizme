@@ -35,7 +35,7 @@ export function MultiInput({
         {question.options.map((opt, idx) => {
           let cls = "option";
           if (submitted) {
-            if (question.answers.includes(idx)) cls += " option--correct";
+            if (question.correctAnswers.includes(idx)) cls += " option--correct";
             else if (selected.includes(idx)) cls += " option--wrong";
           } else if (selected.includes(idx)) {
             cls += " option--selected";

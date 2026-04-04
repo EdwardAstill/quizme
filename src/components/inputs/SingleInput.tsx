@@ -28,7 +28,7 @@ export function SingleInput({
         {question.options.map((opt, idx) => {
           let cls = "option";
           if (submitted) {
-            if (idx === question.answer) cls += " option--correct";
+            if (idx === question.correctAnswer) cls += " option--correct";
             else if (idx === previousAnswer) cls += " option--wrong";
           } else if (idx === selected) {
             cls += " option--selected";
