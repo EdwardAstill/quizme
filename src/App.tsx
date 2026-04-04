@@ -1,7 +1,7 @@
-import { useEffect } from "react";
 import { useQuiz } from "./hooks/useQuiz";
 import { useSettings } from "./hooks/useSettings";
-import type { Quiz } from "./types/quiz";
+import { useQuizLoader } from "./hooks/useQuizLoader";
+import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { QuizLoader } from "./components/QuizLoader";
 import { QuestionCard } from "./components/items/QuestionCard";
 import { GroupCard } from "./components/items/GroupCard";
@@ -35,36 +35,8 @@ export default function App() {
     reset,
   } = useQuiz();
 
-  // When served via CLI, quiz data is already parsed and served as JSON
-  useEffect(() => {
-    fetch("/api/quiz")
-      .then((r) => {
-        if (!r.ok) throw new Error("No CLI quiz");
-        return r.json();
-      })
-      .then((data) => startQuiz(data as Quiz))
-      .catch(() => {
-        // Not served via CLI — user will pick a file
-      });
-  }, [startQuiz]);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (phase !== "active") return;
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        e.preventDefault();
-        nextQuestion();
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-        e.preventDefault();
-        prevQuestion();
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [phase, nextQuestion, prevQuestion]);
+  useQuizLoader(startQuiz);
+  useKeyboardNav({ phase, nextQuestion, prevQuestion });
 
   const settingsBtn = (
     <Settings settings={settings} onUpdate={updateSettings} />
