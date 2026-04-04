@@ -69,4 +69,20 @@ title: Test
     expect(info.content).toContain("https://example.com/photo.png");
     expect(info.content).not.toContain("/quiz-images/");
   });
+
+  it("trims trailing whitespace from the filename", () => {
+    const input = `---
+title: Test
+---
+
+## [info] Trailing space
+:::
+:::diagram.png
+:::
+`;
+    const quiz = parseMarkdown(input);
+    const info = quiz.questions[0] as InfoPage;
+    // Should produce a clean URL without trailing space
+    expect(info.content).toBe("![diagram.png](/quiz-images/diagram.png)");
+  });
 });

@@ -21,8 +21,10 @@ interface ParsedFrontmatter {
   description?: string;
 }
 
+// Note: this runs as a raw string pass before structural parsing,
+// so :::filename inside markdown code fences will also be transformed.
 function replaceLocalImages(content: string): string {
-  return content.replace(/^:::(.+)$/gm, (_, filename) => `![${filename}](/quiz-images/${filename})`);
+  return content.replace(/^:::[ ]*(\S+)[ ]*$/gm, (_, filename) => `![${filename}](/quiz-images/${filename})`);
 }
 
 export function parseMarkdown(content: string): Quiz {
