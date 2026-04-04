@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { resolve, join, dirname, sep } from "node:path";
 import { program } from "commander";
 import { createServer } from "vite";
 import open from "open";
@@ -43,6 +43,54 @@ async function startQuizServer(file: string, opts: ServerOpts) {
           server.middlewares.use("/api/quiz", (_req, res) => {
             res.setHeader("Content-Type", "application/json");
             res.end(JSON.stringify(quizData));
+          });
+
+          const quizDir = dirname(quizPath);
+          const imagesRoot = join(quizDir, "images");
+          const MIME: Record<string, string> = {
+            png: "image/png",
+            jpg: "image/jpeg",
+            jpeg: "image/jpeg",
+            gif: "image/gif",
+            svg: "image/svg+xml",
+            webp: "image/webp",
+          };
+
+          server.middlewares.use("/quiz-images", async (req, res) => {
+            // req.url has the prefix stripped, e.g. "/diagram.png"
+            const filename = req.url?.replace(/^\//, "") ?? "";
+            if (!filename) {
+              res.statusCode = 404;
+              res.end();
+              return;
+            }
+
+            const imagePath = resolve(join(imagesRoot, filename));
+
+            // Path traversal guard
+            if (!imagePath.startsWith(imagesRoot + sep)) {
+              res.statusCode = 403;
+              res.end();
+              return;
+            }
+
+            if (!existsSync(imagePath)) {
+              res.statusCode = 404;
+              res.end();
+              return;
+            }
+
+            const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+            const contentType = MIME[ext];
+            if (!contentType) {
+              res.statusCode = 415;
+              res.end();
+              return;
+            }
+
+            res.setHeader("Content-Type", contentType);
+            const buf = await Bun.file(imagePath).arrayBuffer();
+            res.end(Buffer.from(buf));
           });
         },
       },
