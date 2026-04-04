@@ -64,6 +64,7 @@ true *
 | Free text answer | `= answer text` |
 | Hint | `?> hint text` |
 | Explanation | `> text` (multiline: each line starts with `> `) |
+| Local image | `:::filename.png` inside a `:::` body block — loads from `images/` folder next to the quiz file |
 
 ### Extended body blocks (`:::`)
 
@@ -85,6 +86,42 @@ What does `foo(3)` return?
 ```
 
 The `:::` content is appended to the heading text. Code fences inside are handled correctly.
+
+### Images
+
+Two ways to include images in quiz content:
+
+```markdown
+# Local image — place the file in images/ next to the quiz file
+:::diagram.png
+
+# Web image — standard markdown, fetched directly by the browser
+![alt text](https://example.com/photo.png)
+```
+
+`:::filename.png` on its own line inside a `:::` body block renders as an inline image. The file must be in an `images/` subfolder next to the quiz file:
+
+```
+.quizme/
+  physics.quiz.md
+  images/
+    diagram.png
+    circuit.jpg
+```
+
+Supported formats: `png`, `jpg`, `gif`, `svg`, `webp`.
+
+**Example — question with image:**
+
+```markdown
+## [single] What does this circuit diagram show?
+:::
+:::circuit.png
+:::
+- A series circuit *
+- A parallel circuit
+- A short circuit
+```
 
 ### Complete markdown example
 
@@ -218,7 +255,9 @@ All text fields support Markdown (rendered via react-markdown with remark-gfm) a
 
 - **Inline math:** `$E = mc^2$`
 - **Display math:** `$$\int_0^\infty e^{-x}\,dx = 1$$`
-- Standard markdown: bold, italic, code, headings, lists, links, images, tables, blockquotes
+- Standard markdown: bold, italic, code, headings, lists, links, tables, blockquotes
+- **Local images:** `:::filename.png` inside a `:::` block — see [Images](#images) section above
+- **Web images:** `![alt](https://...)` — standard markdown, fetched directly by the browser
 
 **Known limitation: `$` as currency.** The parser uses `$` as math delimiters:
 - Write `500 USD` or `US$500` — never bare `$500`
